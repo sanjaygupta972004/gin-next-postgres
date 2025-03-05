@@ -1,0 +1,9 @@
+server:
+  mode: development
+  port: 8080
+  version: v0.1
+
+database:
+  url: '/database_url'
+  max_idle_conns: 2
+  max_open_conns: 16
