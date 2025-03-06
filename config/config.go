@@ -56,7 +56,7 @@ func Load(file string) (Configuration, error) {
 }
 
 // loads configs
-func init() {
+func Init() {
 	fmt.Println("=================================================")
 	fmt.Println("⌛          Loading configurations...          ⌛")
 	fmt.Println("=================================================")

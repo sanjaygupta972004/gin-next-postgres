@@ -11,14 +11,20 @@ import (
 	"github.com/savvy-bit/gin-react-postgres/router"
 )
 
-func main() {
-	// Initialize database
+// Load environment variables & Connect DB
+func init() {
+	config.Init()
 	database.Init()
+}
 
+func main() {
+	// Defaulting to the port specified in the global configuration
 	addr := flag.String("addr", config.Global.Server.Port, "Address to listen and serve")
 	flag.Parse()
 
+	// Set Gin mode
 	gin.SetMode(config.Global.Server.Mode)
+
 	app := gin.Default()
 
 	app.Static("/images", filepath.Join(config.Global.Server.StaticDir, "img"))
