@@ -1,18 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"gin-skeleton/config"
-	"os"
+	"flag"
+	"log"
+	"path/filepath"
+
+	"github.com/gin-gonic/gin"
+	"github.com/savvy-bit/gin-react-postgres/config"
+	"github.com/savvy-bit/gin-react-postgres/database"
+	"github.com/savvy-bit/gin-react-postgres/router"
 )
 
-func init() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8000"
-	}
-}
-
 func main() {
-	fmt.Printf("🚀 Server is running on port: %v\n", config.Global.Server.Port)
+	// Initialize database
+	database.Init()
+
+	addr := flag.String("addr", config.Global.Server.Port, "Address to listen and serve")
+	flag.Parse()
+
+	gin.SetMode(config.Global.Server.Mode)
+	app := gin.Default()
+
+	app.Static("/images", filepath.Join(config.Global.Server.StaticDir, "img"))
+	app.StaticFile("/favicon.ico", filepath.Join(config.Global.Server.StaticDir, "img/favicon.ico"))
+	app.MaxMultipartMemory = config.Global.Server.MaxMultipartMemory << 20
+
+	router.Route(app)
+
+	// Listen and Serve
+	if err := app.Run(*addr); err != nil {
+		log.Fatal(err.Error())
+	}
 }

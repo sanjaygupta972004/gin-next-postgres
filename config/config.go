@@ -19,9 +19,11 @@ type Configuration struct {
 
 // ServerConfig is the server config
 type ServerConfig struct {
-	Mode    string
-	Port    int
-	Version string
+	Mode               string
+	Port               string
+	Version            string
+	StaticDir          string `yaml:"static_dir"`
+	MaxMultipartMemory int64  `yaml:"max_multipart_memory"`
 }
 
 // DatabaseConfig is the database config
