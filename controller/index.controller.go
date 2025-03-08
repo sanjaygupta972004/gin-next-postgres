@@ -10,13 +10,6 @@ import (
 // IndexController is the default controller
 type IndexController struct{}
 
-// GetIndex home page
-func (ctrl *IndexController) GetIndex(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status": "fine. this is homepage",
-	})
-}
-
 // GetVersion version json
 func (ctrl *IndexController) GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{

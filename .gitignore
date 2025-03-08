@@ -1,5 +1,4 @@
 storage/*
 log/*
 vendor/*
-tmp/*
-tmp/main
+gin-bin

@@ -60,7 +60,7 @@ func init() {
 			return model.LoginByEmailAndPassword(email, password)
 		},
 		Authorizator: func(data any, c *gin.Context) bool {
-			if v, ok := data.(*model.User); ok && v.Name == "admin" {
+			if _, ok := data.(*model.User); ok {
 				return true
 			}
 
