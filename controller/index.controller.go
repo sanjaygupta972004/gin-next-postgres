@@ -10,7 +10,13 @@ import (
 // IndexController is the default controller
 type IndexController struct{}
 
-// GetVersion version json
+// @Summary Api Version
+// @Description Get the api version
+// @Tags Ping
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /api/version [get]
 func (ctrl *IndexController) GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"version": config.Global.Server.Version,

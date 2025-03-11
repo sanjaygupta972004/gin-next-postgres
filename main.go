@@ -19,6 +19,13 @@ func init() {
 	database.Init()
 }
 
+// @title Gin + Postgres Back-end Swagger Documentation
+// @version 1.0
+// @description Testing Swagger APIs.
+// @securityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
+
 func main() {
 	// Defaulting to the port specified in the global configuration
 	addr := flag.String("addr", config.Global.Server.Port, "Address to listen and serve")

@@ -1,4 +1,44 @@
 info:
   contact: {}
-paths: {}
+  description: Testing Swagger APIs.
+  title: Gin + Postgres Back-end Swagger Documentation
+  version: "1.0"
+paths:
+  /api/version:
+    get:
+      consumes:
+      - application/json
+      description: Get the api version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Api Version
+      tags:
+      - Ping
+  /auth/hello:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint is available for only authenticated users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Test Authorization
+      tags:
+      - Auth
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
