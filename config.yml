@@ -3,6 +3,7 @@ server:
   port: ':8080'
   version: v0.1
   static_dir: ./public
+  doc_dir: ./docs
   max_multipart_memory: 10
 
 database:

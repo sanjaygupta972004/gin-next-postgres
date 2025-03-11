@@ -23,6 +23,7 @@ type ServerConfig struct {
 	Port               string
 	Version            string
 	StaticDir          string `yaml:"static_dir"`
+	DocumentDir        string `yaml:"doc_dir"`
 	MaxMultipartMemory int64  `yaml:"max_multipart_memory"`
 }
 

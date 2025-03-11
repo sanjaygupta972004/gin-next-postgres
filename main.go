@@ -9,6 +9,8 @@ import (
 	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/database"
 	"github.com/savvy-bit/gin-react-postgres/router"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // Load environment variables & Connect DB
@@ -22,11 +24,16 @@ func main() {
 	addr := flag.String("addr", config.Global.Server.Port, "Address to listen and serve")
 	flag.Parse()
 
+	// Swagger URL
+	url := ginSwagger.URL("http://localhost:8080/swagger.json")
+
 	// Set Gin mode
 	gin.SetMode(config.Global.Server.Mode)
 
 	app := gin.Default()
 
+	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	app.StaticFile("/swagger.json", filepath.Join(config.Global.Server.DocumentDir, "swagger.json"))
 	app.Static("/images", filepath.Join(config.Global.Server.StaticDir, "img"))
 	app.StaticFile("/favicon.ico", filepath.Join(config.Global.Server.StaticDir, "img/favicon.ico"))
 	app.MaxMultipartMemory = config.Global.Server.MaxMultipartMemory << 20
