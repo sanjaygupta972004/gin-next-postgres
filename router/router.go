@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/controller"
 	"github.com/savvy-bit/gin-react-postgres/middleware"
@@ -21,7 +23,7 @@ func getHello(c *gin.Context) {
 	c.JSON(200, gin.H{
 		// "email": claims["email"],
 		"name": user.(*model.User).Name,
-		"text": "Hello World.",
+		"text": fmt.Sprintf("Hello %v! Welcome to the Gin + Postgres world.", user.(*model.User).Name),
 	})
 }
 

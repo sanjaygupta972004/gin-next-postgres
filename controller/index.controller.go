@@ -12,7 +12,7 @@ type IndexController struct{}
 
 // @Summary Api Version
 // @Description Get the api version
-// @Tags Ping
+// @Tags Api
 // @Accept json
 // @Produce json
 // @Success 200

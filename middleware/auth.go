@@ -7,6 +7,7 @@ import (
 	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/model"
 )
 
@@ -28,7 +29,7 @@ func init() {
 	var err error
 	authMiddleware, err = ginjwt.New(&ginjwt.GinJWTMiddleware{
 		Realm:       "gin-skeleton",
-		Key:         []byte("secret key"),
+		Key:         []byte(config.Global.Server.SecurityKey),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: identityKey,

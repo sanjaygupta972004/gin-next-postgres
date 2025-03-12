@@ -16,7 +16,7 @@ paths:
           description: OK
       summary: Api Version
       tags:
-      - Ping
+      - Api
   /auth/hello:
     get:
       consumes:

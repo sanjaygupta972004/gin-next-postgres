@@ -5,6 +5,7 @@ server:
   static_dir: ./public
   doc_dir: ./docs
   max_multipart_memory: 10
+  security_key: '6fcc6383ceb3382527b711d26d6c18fd51c7f66f32be9422fe1051c3ead73f70'
 
 database:
   url: 'postgres://root:root@localhost:5432/gin_postgres'

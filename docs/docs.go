@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Ping"
+                    "Api"
                 ],
                 "summary": "Api Version",
                 "responses": {
