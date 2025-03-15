@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 
+	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/controller"
 	"github.com/savvy-bit/gin-react-postgres/middleware"
@@ -27,6 +28,25 @@ func getHello(c *gin.Context) {
 	})
 }
 
+func restrictToRoles(allowedRoles []string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims := ginjwt.ExtractClaims(c)
+
+		if claims["role"] == nil {
+			c.AbortWithStatusJSON(401, gin.H{"error": "User not found"})
+			return
+		}
+		userRole := claims["role"]
+		for _, role := range allowedRoles {
+			if userRole == role {
+				c.Next()
+				return
+			}
+		}
+		c.AbortWithStatusJSON(403, gin.H{"error": "Forbidden"})
+	}
+}
+
 func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
 	authMiddleware := middleware.Auth()
@@ -40,7 +60,7 @@ func Route(app *gin.Engine) {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/hello", getHello)
+		auth.GET("/hello", restrictToRoles([]string{"admin"}), getHello)
 	}
 
 	api := app.Group("/api")
