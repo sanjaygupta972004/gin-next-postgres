@@ -12,7 +12,6 @@ import (
 )
 
 var authMiddleware *ginjwt.GinJWTMiddleware
-var identityKey = "email"
 
 // Login struct
 type Login struct {
@@ -32,24 +31,30 @@ func init() {
 		Key:         []byte(config.Global.Server.SecurityKey),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
-		IdentityKey: identityKey,
+		IdentityKey: "email",
 		SendCookie:  true,
+		// What data goes into the JWT?
 		PayloadFunc: func(data any) jwt.MapClaims {
 			if v, ok := data.(*model.User); ok {
 				return jwt.MapClaims{
-					identityKey: v.Email,
-					"name":      v.Name,
+					"email": v.Email,
+					"name":  v.Name,
+					"role":  v.Role,
 				}
 			}
+
 			return jwt.MapClaims{}
 		},
+		// How do we get the user back from the JWT?
 		IdentityHandler: func(c *gin.Context) any {
 			claims := ginjwt.ExtractClaims(c)
 			return &model.User{
-				Email: claims[identityKey].(string),
+				Email: claims["email"].(string),
 				Name:  claims["name"].(string),
+				Role:  claims["role"].(string),
 			}
 		},
+		// Can this user log in?
 		Authenticator: func(c *gin.Context) (any, error) {
 			var loginVals Login
 			if err := c.ShouldBind(&loginVals); err != nil {
@@ -60,6 +65,7 @@ func init() {
 
 			return model.LoginByEmailAndPassword(email, password)
 		},
+		// Can this user access this route?
 		Authorizator: func(data any, c *gin.Context) bool {
 			if _, ok := data.(*model.User); ok {
 				return true
@@ -67,6 +73,7 @@ func init() {
 
 			return false
 		},
+		// What do we tell the client when it fails?
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
 				"code":    code,
