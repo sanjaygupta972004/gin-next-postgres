@@ -17,6 +17,7 @@ type User struct {
 	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	Role      string    `gorm:"type:varchar(50); not null; default: 'user'" json:"role"`
 }
 
 // TableName for gorm
