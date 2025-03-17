@@ -19,10 +19,8 @@ import (
 // @Security  Bearer
 // @Router /auth/hello [get]
 func getHello(c *gin.Context) {
-	// claims := jwt.ExtractClaims(c)
 	user, _ := c.Get("email")
 	c.JSON(200, gin.H{
-		// "email": claims["email"],
 		"name": user.(*model.User).Name,
 		"text": fmt.Sprintf("Hello %v! Welcome to the Gin + Postgres world.", user.(*model.User).Name),
 	})

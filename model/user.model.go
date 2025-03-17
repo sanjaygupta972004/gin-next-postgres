@@ -13,6 +13,7 @@ import (
 type User struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
 	Name      string    `json:"name"`
+	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
