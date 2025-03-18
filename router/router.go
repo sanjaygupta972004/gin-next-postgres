@@ -47,6 +47,7 @@ func restrictToRoles(allowedRoles []string) gin.HandlerFunc {
 
 func Route(app *gin.Engine) {
 	indexController := new(controller.IndexController)
+	userController := new(controller.UserController)
 	authMiddleware := middleware.Auth()
 
 	// Auth endpoints
@@ -59,6 +60,11 @@ func Route(app *gin.Engine) {
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
 		auth.GET("/hello", restrictToRoles([]string{"admin"}), getHello)
+	}
+
+	app.Use(authMiddleware.MiddlewareFunc())
+	{
+		app.GET("/users", userController.GetAllUsers)
 	}
 
 	api := app.Group("/api")

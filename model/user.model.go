@@ -102,3 +102,12 @@ func LoginByEmailAndPassword(email, password string) (*User, error) {
 
 	return &user, user.Login(password)
 }
+
+// Get all the users
+func GetAllUsers() ([]User, error) {
+	var users []User
+
+	result := database.DB().Find(&users)
+
+	return users, result.Error
+}
