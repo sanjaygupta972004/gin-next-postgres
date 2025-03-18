@@ -1,5 +1,2 @@
-storage/*
-log/*
-vendor/*
-tmp/*
+server/tmp/*
 gin-bin
