@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/database"
@@ -38,6 +39,12 @@ func main() {
 	gin.SetMode(config.Global.Server.Mode)
 
 	app := gin.Default()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		MaxAge:       12 * 60 * 60,
+	}))
 
 	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	app.StaticFile("/swagger.json", filepath.Join(config.Global.Server.DocumentDir, "swagger.json"))

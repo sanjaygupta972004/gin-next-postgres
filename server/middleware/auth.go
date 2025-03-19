@@ -16,7 +16,7 @@ var authMiddleware *ginjwt.GinJWTMiddleware
 // Login struct
 type Login struct {
 	Email    string `form:"email" json:"email" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required,min=6,max=20"`
+	Password string `form:"password" json:"password" binding:"required,min=1,max=20"`
 }
 
 // Auth middleware

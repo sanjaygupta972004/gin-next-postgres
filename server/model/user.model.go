@@ -42,7 +42,7 @@ func (u *User) GetFirstByEmail(email string) error {
 	err := database.DB().Where("email=?", email).First(u).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrDataNotFound
+		return errors.New("User not found. Invalid email")
 	}
 
 	return err
@@ -87,7 +87,7 @@ func (u *User) Signup() error {
 func (u *User) Login(password string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	if err != nil {
-		return err
+		return errors.New("Invalid password")
 	}
 	return nil
 }

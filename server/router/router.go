@@ -50,11 +50,16 @@ func Route(app *gin.Engine) {
 	userController := new(controller.UserController)
 	authMiddleware := middleware.Auth()
 
-	// Auth endpoints
-	app.POST(
-		"/login", authMiddleware.LoginHandler,
-	)
+	// Users endpoints
+	app.POST("/login", authMiddleware.LoginHandler)
 
+	admin := app.Group("/admin")
+	admin.Use(authMiddleware.MiddlewareFunc())
+	{
+		admin.GET("/users", userController.GetAllUsers)
+	}
+
+	// Auth endpoints
 	auth := app.Group("/auth")
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
@@ -62,11 +67,7 @@ func Route(app *gin.Engine) {
 		auth.GET("/hello", restrictToRoles([]string{"admin"}), getHello)
 	}
 
-	app.Use(authMiddleware.MiddlewareFunc())
-	{
-		app.GET("/users", userController.GetAllUsers)
-	}
-
+	// Api
 	api := app.Group("/api")
 	api.Use()
 	{
