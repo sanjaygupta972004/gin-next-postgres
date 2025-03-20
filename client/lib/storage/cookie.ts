@@ -1,4 +1,5 @@
 import { CookieKey } from "@/constants/common";
+import { User } from "@/types/auth.type";
 
 export const CookiesStorage = {
   getCookieData(key: string) {
@@ -19,5 +20,22 @@ export const CookiesStorage = {
   
   setAccessToken(accessToken: string) {
     localStorage.setItem(CookieKey.accessToken, accessToken)
-  }
+  },
+
+  clearAccessToken() {
+    localStorage.removeItem(CookieKey.accessToken)
+  },
+
+
+  getUser() {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem(CookieKey.user);
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
+  },
+
+  setUser(data: User) {
+    return localStorage.setItem(CookieKey.user, JSON.stringify(data))
+  },
 }
