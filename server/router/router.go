@@ -1,30 +1,11 @@
 package router
 
 import (
-	"fmt"
-
 	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/controller"
 	"github.com/savvy-bit/gin-react-postgres/middleware"
-	"github.com/savvy-bit/gin-react-postgres/model"
 )
-
-// @Summary Test Authorization
-// @Description This endpoint is available for only authenticated users
-// @Tags Auth
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]string
-// @Security  Bearer
-// @Router /auth/hello [get]
-func getHello(c *gin.Context) {
-	user, _ := c.Get("email")
-	c.JSON(200, gin.H{
-		"name": user.(*model.User).Name,
-		"text": fmt.Sprintf("Hello %v! Welcome to the Gin + Postgres world.", user.(*model.User).Name),
-	})
-}
 
 func restrictToRoles(allowedRoles []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -50,9 +31,10 @@ func Route(app *gin.Engine) {
 	userController := new(controller.UserController)
 	authMiddleware := middleware.Auth()
 
-	// Users endpoints
+	// Public endpoints
 	app.POST("/login", authMiddleware.LoginHandler)
 
+	// Admin endpoints
 	admin := app.Group("/admin")
 	admin.Use(authMiddleware.MiddlewareFunc())
 	{
@@ -64,7 +46,7 @@ func Route(app *gin.Engine) {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/hello", restrictToRoles([]string{"admin"}), getHello)
+		auth.GET("/me", userController.GetMe)
 	}
 
 	// Api

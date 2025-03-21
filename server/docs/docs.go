@@ -35,14 +35,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/hello": {
+        "/auth/me": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "This endpoint is available for only authenticated users",
+                "description": "This endpoint returns the user information",
                 "consumes": [
                     "application/json"
                 ],
@@ -52,7 +52,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Test Authorization",
+                "summary": "Get User Information",
                 "responses": {
                     "200": {
                         "description": "OK",

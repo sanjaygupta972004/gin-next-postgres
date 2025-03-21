@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
+	ginjwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/model"
 )
@@ -15,6 +17,24 @@ type SignUpRequest struct {
 	Name      string `form:"name" json:"name" binding:"required"`
 	Password  string `form:"password" json:"password" binding:"required,min=6,max=20"`
 	Password2 string `form:"password2" json:"password2" binding:"required"`
+}
+
+// @Summary Get User Information
+// @Description This endpoint returns the user information
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Security  Bearer
+// @Router /auth/me [get]
+func (ctrl *UserController) GetMe(c *gin.Context) {
+	claims := ginjwt.ExtractClaims(c)
+	fmt.Println(claims)
+	c.JSON(http.StatusOK, gin.H{
+		"email": claims["email"].(string),
+		"name":  claims["name"].(string),
+		"role":  claims["role"].(string),
+	})
 }
 
 func (ctrl *UserController) SignUp(c *gin.Context) {

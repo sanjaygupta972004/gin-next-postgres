@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "@/context/AuthContext";
+import Layout from "@/components/layouts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,22 +30,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} text-[14px] antialiased font-[family-name:var(--font-geist-sans)]`}
       >
         <AuthProvider>
-          <div className="w-screen min-h-screen flex flex-col">
-            <header className="border-b border-dashed border-b-zinc-800 py-2 px-8">
-              <Link href="/" >
-                <Image src="/logo.png" alt="logo" width={71} height={48} className="h-12 w-auto object-contain" />
-              </Link>
-            </header>
-            <div className="flex-1 flex flex-col max-w-[1440px] w-full m-auto p-8">
-              {children}
-            </div>
-            <footer className="border-t border-dashed border-t-zinc-800 py-4">
-              <p className="text-sm text-center">Copyright</p>
-            </footer>
-          </div>
-          <ToastContainer
-            theme="dark"
-          />
+          <Layout>
+            {children}
+          </Layout>
         </AuthProvider>
       </body>
     </html>

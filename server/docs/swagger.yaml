@@ -17,11 +17,11 @@ paths:
       summary: Api Version
       tags:
       - Api
-  /auth/hello:
+  /auth/me:
     get:
       consumes:
       - application/json
-      description: This endpoint is available for only authenticated users
+      description: This endpoint returns the user information
       produces:
       - application/json
       responses:
@@ -33,7 +33,7 @@ paths:
             type: object
       security:
       - Bearer: []
-      summary: Test Authorization
+      summary: Get User Information
       tags:
       - Auth
 securityDefinitions:
