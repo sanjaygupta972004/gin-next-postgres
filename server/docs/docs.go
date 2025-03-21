@@ -55,14 +55,27 @@ const docTemplate = `{
                 "summary": "Get User Information",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Successful response with example",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/controller.GetMeResponse"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.GetMeResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
                 }
             }
         }

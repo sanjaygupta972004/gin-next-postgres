@@ -29,7 +29,7 @@ func init() {
 	authMiddleware, err = ginjwt.New(&ginjwt.GinJWTMiddleware{
 		Realm:       "gin-skeleton",
 		Key:         []byte(config.Global.Server.SecurityKey),
-		Timeout:     time.Hour,
+		Timeout:     time.Hour * 12,
 		MaxRefresh:  time.Hour,
 		IdentityKey: "email",
 		SendCookie:  true,

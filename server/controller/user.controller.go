@@ -19,13 +19,19 @@ type SignUpRequest struct {
 	Password2 string `form:"password2" json:"password2" binding:"required"`
 }
 
+type GetMeResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
 // @Summary Get User Information
 // @Description This endpoint returns the user information
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string
 // @Security  Bearer
+// @Success 200 {object} GetMeResponse "Successful response with example"
 // @Router /auth/me [get]
 func (ctrl *UserController) GetMe(c *gin.Context) {
 	claims := ginjwt.ExtractClaims(c)

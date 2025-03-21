@@ -1,3 +1,13 @@
+definitions:
+  controller.GetMeResponse:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
 info:
   contact: {}
   description: Testing Swagger APIs.
@@ -26,11 +36,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successful response with example
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/controller.GetMeResponse'
       security:
       - Bearer: []
       summary: Get User Information
