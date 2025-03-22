@@ -1,3 +1,4 @@
+"use client";
 import { ToastContainer } from "react-toastify";
 import Header from "./header";
 
@@ -6,6 +7,7 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <>
       <div className="w-screen min-h-screen flex flex-col">

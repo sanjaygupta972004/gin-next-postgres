@@ -1,6 +1,7 @@
-"use client"
+"use client";
+import withAuth from "@/components/hoc/withAuth";
 
-export default function Home() {
+const Home: React.FC = () => {
 
   return (
     <h1 className="mt-8 text-center text-3xl font-semibold">
@@ -8,3 +9,6 @@ export default function Home() {
     </h1>
   );
 }
+
+
+export default withAuth(Home);

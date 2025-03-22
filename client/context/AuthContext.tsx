@@ -1,9 +1,11 @@
 'use client'
+import { useRouter } from 'next/navigation';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CookiesStorage } from '@/lib/storage/cookie';
-import { AuthContextType, AuthCredentials, User } from '@/types/auth.type';
-import { api_login } from '@/api/auth';
+import { AuthContextType, AuthCredentials, isUser, User } from '@/types/auth.type';
+import { api_getme, api_login, api_refresh_token } from '@/api/auth';
 import { toast } from 'react-toastify';
+import { ROUTER } from '@/constants/common';
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
@@ -15,13 +17,30 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const storedUser = CookiesStorage.getUser();
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    const getUserInfo = async () => {
+      try {
+        setIsLoading(true);
+        if (CookiesStorage.getAccessToken() !== null) {
+          const refreshToken = (await api_refresh_token()).data;
+          CookiesStorage.setAccessToken(refreshToken.token);
+
+          const me = (await api_getme()).data;
+          CookiesStorage.setUser(me);
+          setUser(me);
+        }
+      } catch (err) {
+        console.error(err);
+        setUser(null);
+        CookiesStorage.clearUser();
+        CookiesStorage.clearAccessToken();
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setIsLoading(false);
+    getUserInfo();
   }, [])
 
   const login = async (credentials: AuthCredentials) => {
@@ -29,6 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = (await api_login(credentials.email, credentials.password)).data;
       const token = res.token || null;
       CookiesStorage.setAccessToken(token);
+
+      const me = (await api_getme()).data;
+      if (!isUser(me))
+        setUser(null);
+      else
+        setUser(me as User);
+      CookiesStorage.setUser(me as User);
+      router.push(ROUTER.Home)
     } catch (err) {
       // eslint-disable-next-line
       toast.error((err as any)?.message || "Invalid credentials");

@@ -14,10 +14,11 @@ export const CookiesStorage = {
     localStorage.removeItem(key);
   },
 
+  // Token
   getAccessToken() {
     return localStorage.getItem(CookieKey.accessToken)
   },
-  
+
   setAccessToken(accessToken: string) {
     localStorage.setItem(CookieKey.accessToken, accessToken)
   },
@@ -26,7 +27,7 @@ export const CookiesStorage = {
     localStorage.removeItem(CookieKey.accessToken)
   },
 
-
+  // User
   getUser() {
     if (typeof window !== 'undefined') {
       const user = localStorage.getItem(CookieKey.user);
@@ -37,5 +38,9 @@ export const CookiesStorage = {
 
   setUser(data: User) {
     return localStorage.setItem(CookieKey.user, JSON.stringify(data))
+  },
+
+  clearUser() {
+    localStorage.removeItem(CookieKey.user)
   },
 }

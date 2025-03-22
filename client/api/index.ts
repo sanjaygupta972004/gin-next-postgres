@@ -48,7 +48,6 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const authorization = getAccessToken();
   if (!authorization.includes('null')) {
-    console.log("Authorization is not empty")
     config.headers!.Authorization = authorization;
   }
   if (config.data instanceof FormData) {

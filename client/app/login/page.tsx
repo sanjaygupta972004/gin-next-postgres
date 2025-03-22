@@ -3,9 +3,10 @@ import { useState } from "react";
 import { FaEnvelope, FaKey } from "react-icons/fa";
 import { AuthCredentials } from "@/types/auth.type";
 import { useAuth } from "@/context/AuthContext";
+import withAuth from "@/components/hoc/withAuth";
 
 
-export default function LoginPage() {
+const LoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState<AuthCredentials>({ email: "", password: "" })
 
   const { login } = useAuth();
@@ -44,3 +45,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+export default withAuth(LoginPage);
