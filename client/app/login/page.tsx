@@ -29,6 +29,7 @@ const LoginPage: React.FC = () => {
           value={credentials.password}
           onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
           type="password"
+          onKeyDown={(e) => { if (e.key === 'Enter') login(credentials) }}
         />
       </div>
       <div className="flex gap-4">
