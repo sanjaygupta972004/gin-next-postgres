@@ -1,9 +1,9 @@
 
-## Installation
+## How to run the server
 1. Clone the repository:
    ```bash
    git clone https://github.com/savvy-bit/gin-react-postgres.git
-   cd gin-react-postgres
+   cd gin-react-postgres/server
    ```
 2. Install `air` to run the app:
    #### Via `go install`
