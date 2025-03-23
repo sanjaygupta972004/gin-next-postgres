@@ -13,8 +13,6 @@ const withAuth = (WrappedComponent: React.FC): React.FC => {
       if (isLoading) return;
       if (!user)
         router.push(ROUTER.Login);
-      else
-        router.push(ROUTER.Home);
     }, [router, isLoading, user]);
 
     return <WrappedComponent {...props} />;

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image"
 import { ROUTER } from "@/constants/common";
-import { FaSignInAlt, FaSignOutAlt, FaUserTie } from "react-icons/fa";
+import { FaSignInAlt, FaSignOutAlt, FaUserCircle, FaUserTie } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
@@ -46,8 +46,14 @@ export default function Header() {
           {isShowUserDropdown &&
             <div
               ref={dropdownRef}
-              className="flex flex-col absolute translate-y-2 top-full right-0 px-6 py-3 border border-solid border-zinc-800 rounded-lg bg-zinc-900/10 backdrop-blur-2xl"
+              className="flex flex-col gap-4 absolute translate-y-2 top-full right-0 px-6 py-3 border border-solid border-zinc-800 rounded-lg bg-zinc-900/10 backdrop-blur-2xl"
             >
+              <a
+                href={ROUTER.Profile}
+                className="flex items-center gap-2 font-semibold cursor-pointer"
+              >
+                <FaUserCircle size={18} />Profile
+              </a>
               <div
                 className="flex items-center gap-2 font-semibold cursor-pointer"
                 onClick={() => { logout(); setIsShowUserDropdown(false) }}
