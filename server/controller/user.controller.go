@@ -31,7 +31,7 @@ type GetMeResponse struct {
 // @Accept json
 // @Produce json
 // @Security  Bearer
-// @Success 200 {object} GetMeResponse "Successful response with example"
+// @Success 200 {object} GetMeResponse "Successful response"
 // @Router /auth/me [get]
 func (ctrl *UserController) GetMe(c *gin.Context) {
 	claims := ginjwt.ExtractClaims(c)

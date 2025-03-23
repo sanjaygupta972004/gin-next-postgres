@@ -55,7 +55,7 @@ const docTemplate = `{
                 "summary": "Get User Information",
                 "responses": {
                     "200": {
-                        "description": "Successful response with example",
+                        "description": "Successful response",
                         "schema": {
                             "$ref": "#/definitions/controller.GetMeResponse"
                         }
