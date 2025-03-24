@@ -1,5 +1,5 @@
 import { CookieKey } from "@/constants/common";
-import { User } from "@/types/auth.type";
+import { User } from "@/types/user.type";
 
 export const CookiesStorage = {
   getCookieData(key: string) {

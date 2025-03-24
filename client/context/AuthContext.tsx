@@ -1,11 +1,12 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CookiesStorage } from '@/lib/storage/cookie';
-import { AuthContextType, AuthCredentials, isUser, User } from '@/types/auth.type';
-import { api_getme, api_login, api_refresh_token } from '@/api/auth';
 import { toast } from 'react-toastify';
+import { isUser, User } from '@/types/user.type';
+import { AuthContextType, AuthCredentials } from '@/types/auth.type';
 import { ROUTER } from '@/constants/common';
+import { CookiesStorage } from '@/lib/storage/cookie';
+import { api_getme, api_login, api_refresh_token } from '@/api/auth';
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,

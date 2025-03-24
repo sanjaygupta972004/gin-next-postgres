@@ -6,7 +6,7 @@ const ProfilePage: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <div className="flex flex-col gap-8 rounded-lg p-8 border border-solid border-zinc-800">
+    <div className="flex flex-col gap-8 text-[16px] rounded-lg p-8 border border-solid border-zinc-800">
       <p>
         Name: <b>{user?.name}</b>
       </p>

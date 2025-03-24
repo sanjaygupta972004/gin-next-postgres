@@ -6,6 +6,8 @@ export const CookieKey = {
 
 export const ROUTER = {
   Home: '/',
-  Login: '/login',
-  Profile: '/profile'
+  Login: '/auth/login',
+  Profile: '/profile',
+  Forbidden: '/auth/forbidden',
+  Users: '/users',
 }

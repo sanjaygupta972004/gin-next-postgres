@@ -38,7 +38,7 @@ func Route(app *gin.Engine) {
 	admin := app.Group("/admin")
 	admin.Use(authMiddleware.MiddlewareFunc())
 	{
-		admin.GET("/users", userController.GetAllUsers)
+		admin.GET("/users", restrictToRoles([]string{"admin"}), userController.GetAllUsers)
 	}
 
 	// Auth endpoints

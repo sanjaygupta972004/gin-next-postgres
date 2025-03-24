@@ -34,10 +34,15 @@ type GetMeResponse struct {
 // @Router /auth/me [get]
 func (ctrl *UserController) GetMe(c *gin.Context) {
 	claims := ginjwt.ExtractClaims(c)
+	var user model.User
+	if err := user.GetFirstByEmail(claims["email"].(string)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid credentials"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"email": claims["email"].(string),
-		"name":  claims["name"].(string),
-		"role":  claims["role"].(string),
+		"email": user.Email,
+		"name":  user.Name,
+		"role":  user.Role,
 	})
 }
 
@@ -76,6 +81,6 @@ func (ctrl *UserController) GetAllUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": users,
+		"users": users,
 	})
 }
