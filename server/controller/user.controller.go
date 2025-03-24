@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	ginjwt "github.com/appleboy/gin-jwt/v2"
@@ -35,7 +34,6 @@ type GetMeResponse struct {
 // @Router /auth/me [get]
 func (ctrl *UserController) GetMe(c *gin.Context) {
 	claims := ginjwt.ExtractClaims(c)
-	fmt.Println(claims)
 	c.JSON(http.StatusOK, gin.H{
 		"email": claims["email"].(string),
 		"name":  claims["name"].(string),
