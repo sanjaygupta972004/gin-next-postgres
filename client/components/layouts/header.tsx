@@ -38,7 +38,7 @@ export default function Header() {
       {user ?
         <div className="relative">
           <p
-            className="flex items-center gap-2 font-semibold cursor-pointer"
+            className="flex items-center gap-2 font-semibold cursor-pointer text-[14px]"
             onClick={() => setIsShowUserDropdown(!isShowUserDropdown)}
           >
             <FaUserTie size={18} />{user.name}
