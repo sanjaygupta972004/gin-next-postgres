@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     CookiesStorage.clearCookieData("user");
     CookiesStorage.clearAccessToken();
+    router.push(ROUTER.Home)
   };
 
   return (
