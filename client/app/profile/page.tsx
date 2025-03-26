@@ -1,5 +1,6 @@
 "use client";
 import { api_getme } from "@/api/auth";
+import { CustomizedButton } from "@/components/common/Button";
 import Section from "@/components/common/Section";
 import { InputText } from "@/components/form/textinput";
 import withAuth from "@/components/hoc/withAuth";
@@ -48,6 +49,10 @@ const ProfilePage: React.FC = () => {
           disabled
         />
       </Section>
+      <div className="flex justify-end items-center gap-8">
+        <CustomizedButton label="Save Profile" type="primary" className="w-40" />
+        <CustomizedButton label="Discard" type="secondary" className="w-40" />
+      </div>
     </form>
   );
 }
