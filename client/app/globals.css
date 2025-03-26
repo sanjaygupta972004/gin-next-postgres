@@ -10,3 +10,23 @@ html, body {
 * {
   box-sizing: border-box;
 }
+
+/* Customize scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-900;
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-700;
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-600;
+}
