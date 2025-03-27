@@ -41,6 +41,10 @@ func ConnectDB() any {
 	return db
 }
 
+func CloseDB() {
+	dbInstance = nil
+}
+
 // DB returns the database instance
 func DB() *gorm.DB {
 	return dbInstance.Instance().(*gorm.DB)

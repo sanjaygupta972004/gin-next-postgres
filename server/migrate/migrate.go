@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/database"
-	"github.com/savvy-bit/gin-react-postgres/model"
+	"github.com/savvy-bit/gin-react-postgres/models"
 )
 
 // Load environment variables & Connect DB
@@ -13,5 +13,5 @@ func init() {
 }
 
 func main() {
-	database.DB().AutoMigrate(&model.User{})
+	database.DB().AutoMigrate(&models.User{})
 }

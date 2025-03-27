@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/database"
-	"github.com/savvy-bit/gin-react-postgres/router"
+	"github.com/savvy-bit/gin-react-postgres/routers"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -38,6 +39,14 @@ func main() {
 	// Set Gin mode
 	gin.SetMode(config.Global.Server.Mode)
 
+	// access database for global variable
+	db := database.DB()
+	if db == nil {
+		log.Fatal("Database connection failed")
+		os.Exit(1)
+	}
+	defer database.CloseDB()
+
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
@@ -52,7 +61,7 @@ func main() {
 	app.StaticFile("/favicon.ico", filepath.Join(config.Global.Server.StaticDir, "img/favicon.ico"))
 	app.MaxMultipartMemory = config.Global.Server.MaxMultipartMemory << 20
 
-	router.Route(app)
+	routers.SetupRouters(app, db)
 
 	// Listen and Serve
 	if err := app.Run(*addr); err != nil {
