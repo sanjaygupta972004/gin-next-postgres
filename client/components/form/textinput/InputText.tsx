@@ -36,12 +36,12 @@ const InputText = <TFieldValues extends Record<string, unknown>>({
                 'bg-transparent border border-solid border-zinc-800 outline-none focus-within:border-zinc-500 hover:border-zinc-500 rounded-lg',
                 customClass,
                 {
-                  '!border-red-700': !!error?.message,
+                  'shadow-red-700 shadow-sm border-none': !!error?.message,
                 },
               )}
               value={(field.value ?? '') as string}
             />
-            {error?.message && <span className="text-color-red text-[12px]"> {error?.message}</span>}
+            {error?.message && <span className="ml-1 text-red-700 font-semibold text-[14px] antialiased"> {error?.message}</span>}
           </div>
         );
       }}

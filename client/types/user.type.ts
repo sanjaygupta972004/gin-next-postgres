@@ -1,7 +1,7 @@
 export type User = {
     email: string;
     name: string;
-    role: string;
+    role?: string;
 }
 
 // eslint-disable-next-line
