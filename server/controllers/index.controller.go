@@ -19,6 +19,6 @@ type IndexController struct{}
 // @Router /api/version [get]
 func (ctrl *IndexController) GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"version": config.Global.Server.Version,
+		"version": config.GetGlobalConfig().Server.Version,
 	})
 }
