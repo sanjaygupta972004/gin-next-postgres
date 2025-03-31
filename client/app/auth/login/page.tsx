@@ -4,6 +4,9 @@ import { FaEnvelope, FaKey } from "react-icons/fa";
 import { AuthCredentials } from "@/types/auth.type";
 import { useAuth } from "@/context/AuthContext";
 import withAuth from "@/components/hoc/withAuth";
+import InputText from "@/components/common/InputBox";
+import Section from "@/components/common/Section";
+import { Button } from "@/components/common/Button";
 
 
 const LoginPage: React.FC = () => {
@@ -12,38 +15,36 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
 
   return (
-
-    <div className="h-full w-[400px] flex flex-col gap-6 justify-center items-center m-auto border border-zinc-800 rounded-lg p-8">
-      <div className="w-full flex flex-col gap-2">
-        <p className="flex items-center gap-2 font-semibold"><FaEnvelope />Email</p>
-        <input
-          className="w-full border border-zinc-800 rounded-lg py-2 px-4"
-          value={credentials.email}
-          onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-        />
-      </div>
-      <div className="w-full flex flex-col gap-2">
-        <p className="flex items-center gap-2 font-semibold"><FaKey />Password</p>
-        <input
-          className="w-full border border-zinc-800 rounded-lg py-2 px-4"
-          value={credentials.password}
-          onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-          type="password"
-          onKeyDown={(e) => { if (e.key === 'Enter') login(credentials) }}
-        />
-      </div>
-      <div className="flex gap-4">
-        <button
-          className="bg-white text-zinc-950 font-semibold py-2 px-4 rounded-lg cursor-pointer"
+    <Section className="w-[400px] m-auto">
+      <InputText
+        label="Email"
+        labelIcon={<FaEnvelope />}
+        value={credentials.email}
+        onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+      />
+      <InputText
+        label="Password"
+        labelIcon={<FaKey />}
+        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+        type="password"
+        onKeyDown={(e) => { if (e.key === 'Enter') login(credentials) }}
+      />
+      <div className="flex justify-evenly gap-4 mt-4">
+        <Button
+          customClass="w-30"
           onClick={() => login(credentials)}
         >
           Login
-        </button>
-        <button className="font-semibold py-2 px-4 rounded-lg cursor-pointer">
+        </Button>
+        <Button
+          customClass="w-30"
+          onClick={() => login(credentials)}
+          isPrimary={false}
+        >
           Register
-        </button>
+        </Button>
       </div>
-    </div>
+    </Section >
   )
 }
 

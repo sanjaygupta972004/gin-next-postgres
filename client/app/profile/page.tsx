@@ -1,14 +1,14 @@
 "use client";
-import * as yup from 'yup';
-import { api_getme } from "@/api/auth";
-import { CustomizedButton } from "@/components/common/Button";
-import Section from "@/components/common/Section";
-import { InputText } from "@/components/form/textinput";
-import withAuth from "@/components/hoc/withAuth";
-import { isUser, User } from "@/types/user.type";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/common/Button";
+import Section from "@/components/common/Section";
+import { FormInputText } from "@/components/form/textinput";
+import withAuth from "@/components/hoc/withAuth";
+import { isUser, User } from "@/types/user.type";
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { api_getme } from "@/api/auth";
 
 const ProfilePage: React.FC = () => {
   const getProfile = async () => {
@@ -44,17 +44,17 @@ const ProfilePage: React.FC = () => {
         />
       </div>
       <Section label="User Information">
-        <InputText
+        <FormInputText
           label="Name"
           control={control}
           name="name"
         />
-        <InputText
+        <FormInputText
           label="Email"
           control={control}
           name="email"
         />
-        <InputText
+        <FormInputText
           label="Role"
           control={control}
           name="role"
@@ -62,8 +62,8 @@ const ProfilePage: React.FC = () => {
         />
       </Section>
       <div className="flex justify-end items-center gap-8">
-        <CustomizedButton label="Save Profile" isPrimary className="w-40" />
-        <CustomizedButton label="Discard" isPrimary={false} className="w-40" />
+        <Button isPrimary customClass="w-40">Save Profile</Button>
+        <Button isPrimary={false} customClass="w-40">Discard</Button>
       </div>
     </form>
   );
