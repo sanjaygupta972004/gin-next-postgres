@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,16 +24,16 @@ func IsUUID(id string) (uuid.UUID, error) {
 	return idUUID, nil
 }
 
-func ErrorResponse(ctx *gin.Context, statusCode int, customMessage string, details any) {
+func ErrorResponse(ctx *gin.Context, statusCode int, customMessage string, details error) {
 	if details != nil {
 		log.Printf("Error : %v", details)
 	}
 	fmt.Println("Error in helper function : ", details)
-	errorDetails := fmt.Sprintf("%v", details)
+
 	ctx.JSON(statusCode, gin.H{
 		"success": false,
 		"message": customMessage,
-		"error":   errorDetails,
+		"error":   details,
 	})
 }
 

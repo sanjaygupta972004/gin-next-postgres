@@ -1,23 +1,22 @@
 package services
 
 import (
+	"github.com/savvy-bit/gin-react-postgres/dto"
 	"github.com/savvy-bit/gin-react-postgres/models"
 	"github.com/savvy-bit/gin-react-postgres/repositories"
+	"github.com/savvy-bit/gin-react-postgres/utils"
+	"github.com/savvy-bit/gin-react-postgres/utils/mapper"
 )
 
-type LoginResponse struct {
-	Token string `json:"token"`
-}
-
 type UserService interface {
-	CreateUser(user *models.User) (*models.User, error)
-	LoginUser(user *models.User) (*LoginResponse, error)
-	LogoutUser() (message string, err error)
-	GetUserProfile(userID string) (*models.User, error)
-	UpdateUserProfile(userID string, user *models.User) (*models.User, error)
-	DeleteUserProfile(userID string) error
-	UploadProfileImage(userID string, profileImage string) (*models.User, error)
-	UploadBannerImage(userID string, bannerImage string) (*models.User, error)
+	CreateUser(user *models.User) (*dto.UserResponse, error)
+	LoginUser(user *models.User) (*dto.UserLoginResponse, error)
+	LogoutUser(userID string) (message string, err error)
+	GetUserProfile(userID string) (*dto.UserResponse, error)
+	UpdateUserProfile(userID string, updateUserRequest dto.UserUpdateRequest) (*dto.UserResponse, error)
+	DeleteUserProfile(userID string) (message string, err error)
+	UploadProfileImage(userID string, profileImage string) (*dto.UserResponse, error)
+	UploadBannerImage(userID string, bannerImage string) (*dto.UserResponse, error)
 }
 
 type userService struct {
@@ -30,39 +29,79 @@ func NewUserService(repo repositories.UserRepository) UserService {
 	}
 }
 
-// DeleteUserProfile implements UserService.
-func (s *userService) DeleteUserProfile(userID string) error {
+func (s *userService) CreateUser(user *models.User) (*dto.UserResponse, error) {
+	userData, err := s.repo.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapper.UserToUserResponse(*userData), nil
+}
+
+// will have to implement
+func (s *userService) LoginUser(user *models.User) (*dto.UserLoginResponse, error) {
 	panic("unimplemented")
 }
 
-// GetUserProfile implements UserService.
-func (s *userService) GetUserProfile(userID string) (*models.User, error) {
+func (s *userService) LogoutUser(userID string) (string, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return "", err
+	}
+
+	if err := s.repo.LogoutUser(userUUID); err != nil {
+		return "", err
+	}
+	return "Logout successfully", nil
+}
+
+func (s *userService) GetUserProfile(userID string) (*dto.UserResponse, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+	userData, err := s.repo.GetUserByID(userUUID)
+	if err != nil {
+		return nil, err
+	}
+	return mapper.UserToUserResponse(*userData), nil
+}
+
+func (s *userService) UpdateUserProfile(userID string, updateUserRequest dto.UserUpdateRequest) (*dto.UserResponse, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+	userData, err := s.repo.UpdateUser(userUUID, &models.User{
+		FullName: updateUserRequest.FullName,
+		Username: updateUserRequest.Username,
+		Role:     models.UserRole(updateUserRequest.Role),
+		IsAdmin:  updateUserRequest.IsAdmin,
+		Gender:   updateUserRequest.Gender,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return mapper.UserToUserResponse(*userData), nil
+}
+
+func (s *userService) DeleteUserProfile(userID string) (string, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return "", err
+	}
+	if err := s.repo.DeleteUser(userUUID); err != nil {
+		return "", err
+	}
+	return "User deleted successfully", nil
+}
+
+// UploadProfileImage
+func (s *userService) UploadProfileImage(userID string, profileImage string) (*dto.UserResponse, error) {
 	panic("unimplemented")
 }
 
-// UpdateUserProfile implements UserService.
-func (s *userService) UpdateUserProfile(userID string, user *models.User) (*models.User, error) {
-	panic("unimplemented")
-}
-
-// UploadBannerImage implements UserService.
-func (s *userService) UploadBannerImage(userID string, bannerImage string) (*models.User, error) {
-	panic("unimplemented")
-}
-
-// UploadProfileImage implements UserService.
-func (s *userService) UploadProfileImage(userID string, profileImage string) (*models.User, error) {
-	panic("unimplemented")
-}
-
-func (s *userService) CreateUser(user *models.User) (*models.User, error) {
-	return s.repo.CreateUser(user)
-}
-
-func (s *userService) LoginUser(user *models.User) (*LoginResponse, error) {
-	panic("unimplemented")
-}
-
-func (s *userService) LogoutUser() (string, error) {
+// uploadBannerImage
+func (s *userService) UploadBannerImage(userID string, bannerImage string) (*dto.UserResponse, error) {
 	panic("unimplemented")
 }

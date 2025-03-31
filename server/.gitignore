@@ -1,0 +1,57 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build and debug artifacts
+*.out
+*.test
+*.log
+*.tmp
+*.swp
+
+# Dependency directories (Go modules and vendor)
+/vendor/
+/go.sum
+/go.mod
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Database files
+*.db
+*.sqlite
+
+# GORM specific migration files (if any)
+migrations/
+
+# Redis dump file
+dump.rdb
+
+# Cache and logs
+*.log
+/tmp/
+
+# Coverage reports
+*.cover
+coverage.out
+
+# Go workspace settings (if using Go workspaces)
+.gowork
+
+# Cloudinary uploads (if storing locally before upload)
+/uploads/

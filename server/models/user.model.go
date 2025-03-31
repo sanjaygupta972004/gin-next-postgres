@@ -1,13 +1,15 @@
 package models
 
 import (
+	"database/sql/driver"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/gofrs/uuid"
 	"github.com/savvy-bit/gin-react-postgres/utils"
 	"github.com/savvy-bit/gin-react-postgres/validations"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 type UserRole string
@@ -19,7 +21,7 @@ const (
 )
 
 // implement scan method for reading from database
-func (u *UserRole) scan(value any) error {
+func (u *UserRole) Scan(value any) error {
 	str, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("invalid user role: %v", value)
@@ -29,8 +31,8 @@ func (u *UserRole) scan(value any) error {
 }
 
 // implement value method for writing to database
-func (u *UserRole) value() any {
-	return string(*u)
+func (u *UserRole) Value() (driver.Value, error) {
+	return string(*u), nil
 }
 
 // check if user role is valid
@@ -50,7 +52,7 @@ type User struct {
 	Email              string         `gorm:"unique;not null" json:"email"`
 	ProfileImage       string         `gorm:"default:null" json:"profileImage"`
 	Gender             string         `gorm:"default:null" json:"gender"`
-	Role               UserRole       `gorm:"type:ENUM('admin', 'user', 'guest');not null;default:'user'" json:"role"`
+	Role               UserRole       `gorm:"type:user_role;not null;default:'user'" json:"role"`
 	BannerImage        string         `gorm:"default:null" json:"bannerImage"`
 	PassWord           string         `gorm:"not null" json:"password"`
 	AuthToken          string         `gorm:"default:null" json:"authToken"`
@@ -60,6 +62,22 @@ type User struct {
 	CreatedAt          time.Time      `gorm:"autoCreateTime" json:"createdAt"`
 	UpdatedAt          time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+}
+
+func CreateEnumUserRole(db *gorm.DB) error {
+	var exists bool
+	err := db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role')").Scan(&exists).Error
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		if err := db.Exec("CREATE TYPE user_role AS ENUM ('admin', 'user', 'guest')").Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

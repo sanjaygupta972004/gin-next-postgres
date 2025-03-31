@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -33,8 +33,6 @@ func init() {
 func main() {
 	// Defaulting to the port specified in the global configuration
 	config := config.GetGlobalConfig()
-	addr := flag.String("addr", config.Server.Port, "Address to listen and serve")
-	flag.Parse()
 
 	// Swagger URL
 	url := ginSwagger.URL("http://localhost:8080/swagger.json")
@@ -62,7 +60,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := gin.Default()
+	app := gin.New()
 
 	app.Use(middlewares.CorsMiddleWare())
 	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
@@ -71,10 +69,20 @@ func main() {
 	app.StaticFile("/favicon.ico", filepath.Join(config.Server.StaticDir, "img/favicon.ico"))
 	app.MaxMultipartMemory = config.Server.MaxMultipartMemory << 20
 
+	// setup routers
 	routers.SetupRouters(app, database.DB)
 
+	// setup default routes
+	routers.SetupDefaultRouter(app, config.Server.Port)
+
+	// setup health check route
+	routers.SetupHealthCheckRouter(app)
+
+	fmt.Println("Server is running on port:", config.Server.Port)
 	// Listen and Serve
-	if err := app.Run(*addr); err != nil {
-		log.Fatal(err.Error())
+	if err := app.Run(":" + config.Server.Port); err != nil {
+		fmt.Println("Error starting server:", err)
+		log.Fatal(err)
 	}
+
 }

@@ -11,9 +11,9 @@ type UserRepository interface {
 	UploadBannerImage(userID uuid.UUID, bannerImage string) (*models.User, error)
 	CreateUser(user *models.User) (*models.User, error)
 	LoginUser(email string) (*models.User, error)
-	LogoutUser() (message string, err error)
+	LogoutUser(userID uuid.UUID) error
 	GetUserByID(userID uuid.UUID) (*models.User, error)
-	UpateUser(userID uuid.UUID, user *models.User) (*models.User, error)
+	UpdateUser(userID uuid.UUID, user *models.User) (*models.User, error)
 	DeleteUser(userID uuid.UUID) error
 }
 
@@ -27,9 +27,19 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-// CreateUser implements UserRepository.
 func (u *userRepository) CreateUser(user *models.User) (*models.User, error) {
-	panic("unimplemented")
+	if err := user.BeforeCreate(u.db); err != nil {
+		return nil, err
+	}
+	if err := u.db.Find("email", user.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			if err := u.db.Create(&user).Error; err != nil {
+				return nil, err
+			}
+			return user, nil
+		}
+	}
+	return nil, nil
 }
 
 // LoginUser implements UserRepository.
@@ -38,23 +48,40 @@ func (u *userRepository) LoginUser(email string) (*models.User, error) {
 }
 
 // LogoutUser implements UserRepository.
-func (u *userRepository) LogoutUser() (string, error) {
-	panic("unimplemented")
+func (u *userRepository) LogoutUser(userID uuid.UUID) error {
+	var user models.User
+	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(map[string]interface{}{
+		"refresh_token": nil,
+	}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
-// DeleteUser implements UserRepository.
 func (u *userRepository) DeleteUser(userID uuid.UUID) error {
-	panic("unimplemented")
+	var user models.User
+	if err := u.db.Delete(&user, "user_id = ?", userID).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
-// GetUserByID implements UserRepository.
 func (u *userRepository) GetUserByID(userID uuid.UUID) (*models.User, error) {
-	panic("unimplemented")
+	var user models.User
+	if err := u.db.First(&user, "user_id = ?", userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }
 
-// UpateUser implements UserRepository.
-func (u *userRepository) UpateUser(userID uuid.UUID, user *models.User) (*models.User, error) {
-	panic("unimplemented")
+func (u *userRepository) UpdateUser(userID uuid.UUID, user *models.User) (*models.User, error) {
+	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(&user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // UploadBannerImage implements UserRepository.
