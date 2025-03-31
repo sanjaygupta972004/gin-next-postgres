@@ -1,53 +1,127 @@
 package database
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"sync"
 
-	"github.com/savvy-bit/gin-react-postgres/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+	"sync"
+	"time"
 )
-
-// DBInstance is a singleton DB instance
-type DBInstance struct {
-	initializer func() any
-	instance    any
-	once        sync.Once
-}
 
 var (
-	dbInstance *DBInstance
+	once    sync.Once
+	DB      *gorm.DB
+	PGXPool *pgxpool.Pool
 )
 
-// Instance gets the singleton instance
-func (i *DBInstance) Instance() any {
-	i.once.Do(func() {
-		i.instance = i.initializer()
-	})
-	return i.instance
+type DBConfig struct {
+	Database_URL string
 }
 
-func ConnectDB() any {
-	dbURL := config.Global.Database.URL
-
-	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
-
+func connectPGX(cfg *DBConfig) (*pgxpool.Pool, error) {
+	dsn := cfg.Database_URL
+	pool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("Unable to connect to pgx database: %v\n", err)
+		return nil, err
 	}
 
-	return db
+	// Test query to verify connection
+	var greeting string
+	err = pool.QueryRow(context.Background(), "SELECT 'Hello, world!'").Scan(&greeting)
+	if err != nil {
+		log.Printf("QueryRow failed: %v\n", err)
+		pool.Close()
+		return nil, err
+	}
+
+	return pool, nil
 }
 
-// DB returns the database instance
-func DB() *gorm.DB {
-	return dbInstance.Instance().(*gorm.DB)
+func connectGORMDB(cfg *DBConfig) (*gorm.DB, error) {
+	dsn := cfg.Database_URL
+	gormConfig := &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	}
+
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{DSN: dsn}), gormConfig)
+	if err != nil {
+		log.Printf("Unable to open gorm DB: %v", err)
+		return nil, err
+	}
+
+	return gormDB, nil
 }
 
-func Init() {
-	fmt.Println("⌛             Loading database...             ⌛")
-	fmt.Println("=================================================")
-	dbInstance = &DBInstance{initializer: ConnectDB}
+func ConnectDB(cfg *DBConfig) error {
+	var err error
+
+	once.Do(func() {
+		PGXPool, err = connectPGX(cfg)
+		if err != nil {
+			log.Fatalf("pgx connection failed: %v", err)
+			return
+		}
+
+		// Verify pgx connection
+		if err = PGXPool.Ping(context.Background()); err != nil {
+			log.Fatalf("pgx ping failed: %v", err)
+			PGXPool.Close()
+			return
+		}
+
+		DB, err = connectGORMDB(cfg)
+		if err != nil {
+			log.Fatalf("gorm connection failed: %v", err)
+			PGXPool.Close()
+			return
+		}
+
+		sqlDB, err := DB.DB()
+		if err != nil {
+			log.Fatalf("Error fetching SQL DB from GORM: %v", err)
+			PGXPool.Close()
+			return
+		}
+
+		// Configure connection pooling
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(100)
+		sqlDB.SetConnMaxLifetime(time.Hour)
+
+		log.Println("Successfully connected to Postgres with GORM and PGX")
+	})
+
+	return err
+}
+
+func DisConnectDB() error {
+	if DB != nil {
+		sqlDB, err := DB.DB()
+		if err != nil {
+			log.Printf("Error fetching SQL DB from GORM: %v", err)
+			return err
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			log.Printf("Error closing SQL DB connection: %v", err)
+			return err
+		}
+	}
+
+	if PGXPool != nil {
+		PGXPool.Close()
+		log.Println("PGXPool connection closed")
+	}
+
+	return nil
 }
