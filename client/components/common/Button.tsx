@@ -1,31 +1,33 @@
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 import cn from 'classnames';
 
-interface CustomizedButtonProps {
-  label?: string;
-  className?: string;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  customClass?: string;
   isPrimary?: boolean;
-  type?: "submit" | "button";
+  children?: ReactNode | Array<ReactNode>
 }
 
-export function CustomizedButton({
-  label = "",
-  className = "",
+export function Button({
+  children,
+  customClass = "",
   isPrimary = true,
   type,
-}: CustomizedButtonProps) {
+  ...rest
+}: ButtonProps) {
   return (
     <button
       type={type}
       className={cn(
-        className,
-        "py-3 px-4 font-semibold rounded-lg cursor-pointer transition-all duration-500",
+        customClass,
+        "py-2 px-4 font-semibold rounded-lg cursor-pointer transition-all duration-500",
         {
-          "bg-zinc-100 hover:bg-zinc-400 text-zinc-950": isPrimary,
+          "bg-zinc-100 hover:bg-gray-300 text-zinc-950": isPrimary,
           "bg-zinc-950 text-white border border-solid border-zinc-800 hover:border-zinc-500": !isPrimary,
         }
       )}
+      {...rest}
     >
-      {label}
+      {children}
     </button>
   )
 }

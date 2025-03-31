@@ -2,20 +2,20 @@ import cn from 'classnames';
 import { InputHTMLAttributes } from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 
-interface InputTextProps<TFieldValues extends FieldValues> extends InputHTMLAttributes<HTMLInputElement> {
+interface FormInputTextProps<TFieldValues extends FieldValues> extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   name: Path<TFieldValues>;
   control: Control<TFieldValues>;
   customClass?: string;
 }
 
-const InputText = <TFieldValues extends Record<string, unknown>>({
+const FormInputText = <TFieldValues extends Record<string, unknown>>({
   label = '',
   name,
   control,
   customClass,
   ...rest
-}: InputTextProps<TFieldValues>) => {
+}: FormInputTextProps<TFieldValues>) => {
 
   return (
     <Controller
@@ -48,4 +48,4 @@ const InputText = <TFieldValues extends Record<string, unknown>>({
     />
   );
 };
-export default InputText;
+export default FormInputText;
