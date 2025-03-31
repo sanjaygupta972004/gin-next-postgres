@@ -11,8 +11,9 @@ import (
 
 // GlobalConfig holds the entire configuration
 type Configuration struct {
-	Server   ServerConfig
-	Database DatabaseConfig
+	Server    ServerConfig
+	Database  DatabaseConfig
+	AuthToken AuthToken
 }
 
 // ServerConfig holds server-related settings
@@ -29,6 +30,12 @@ type ServerConfig struct {
 // DatabaseConfig holds database settings
 type DatabaseConfig struct {
 	URL string
+}
+
+// AuthToken holds authentication tokens
+type AuthToken struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 var (
@@ -86,6 +93,18 @@ func LoadDatabaseConfig() (DatabaseConfig, error) {
 	return DatabaseConfig{URL: dbURL}, nil
 }
 
+// load auth token secret from env
+func LoadAuthToken() (AuthToken, error) {
+	accessToken := getEnvOrDefault("ACCESS_TOKEN", "")
+	refreshToken := getEnvOrDefault("REFRESH_TOKEN", "")
+
+	if accessToken == "" || refreshToken == "" {
+		return AuthToken{}, fmt.Errorf("ACCESS_TOKEN and REFRESH_TOKEN are required but missing")
+
+	}
+	return AuthToken{AccessToken: accessToken, RefreshToken: refreshToken}, nil
+}
+
 // Load all configurations into the global instance
 func LoadGlobalConfig() error {
 	var loadError error
@@ -108,10 +127,17 @@ func LoadGlobalConfig() error {
 			return
 		}
 
+		authToken, err := LoadAuthToken()
+		if err != nil {
+			loadError = err
+			return
+		}
+
 		mu.Lock()
 		configInstance = &Configuration{
-			Server:   serverConfig,
-			Database: databaseConfig,
+			Server:    serverConfig,
+			Database:  databaseConfig,
+			AuthToken: authToken,
 		}
 		isLoaded = true
 		mu.Unlock()

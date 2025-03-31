@@ -1,105 +1,111 @@
 package middlewares
 
-// import (
-// 	"log"
-// 	"time"
+import (
+	"log"
+	"net/http"
+	"strings"
 
-// 	ginjwt "github.com/appleboy/gin-jwt/v2"
-// 	"github.com/gin-gonic/gin"
-// 	jwt "github.com/golang-jwt/jwt/v4"
-// 	"github.com/savvy-bit/gin-react-postgres/config"
-// 	"github.com/savvy-bit/gin-react-postgres/models"
-// )
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/savvy-bit/gin-react-postgres/config"
+	"github.com/savvy-bit/gin-react-postgres/models"
+	"github.com/savvy-bit/gin-react-postgres/utils"
+	"gorm.io/gorm"
+)
 
-// var authMiddleware *ginjwt.GinJWTMiddleware
+func JWTVerifyForUser(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var token string
 
-// // Login struct
-// type Login struct {
-// 	Email    string `form:"email" json:"email" binding:"required"`
-// 	Password string `form:"password" json:"password" binding:"required,min=1,max=20"`
-// }
+		authConfig := config.GetGlobalConfig().AuthToken
 
-// // Auth middleware
-// func Auth() *ginjwt.GinJWTMiddleware {
-// 	return authMiddleware
-// }
+		if cookieToken, err := c.Cookie("accessToken"); err == nil {
+			token = cookieToken
+		}
 
-// func init() {
-// 	var err error
-// 	authMiddleware, err = ginjwt.New(&ginjwt.GinJWTMiddleware{
-// 		Realm:       "gin-skeleton",
-// 		Key:         []byte(config.Global.Server.SecurityKey),
-// 		Timeout:     time.Hour * 12,
-// 		MaxRefresh:  time.Hour,
-// 		IdentityKey: "email",
-// 		SendCookie:  true,
-// 		// What data goes into the JWT?
-// 		PayloadFunc: func(data any) jwt.MapClaims {
-// 			if v, ok := data.(*models.User); ok {
-// 				return jwt.MapClaims{
-// 					"email": v.Email,
-// 					"name":  v.Name,
-// 					"role":  v.Role,
-// 				}
-// 			}
+		if token == "" {
+			authHeader := c.GetHeader("Authorization")
+			if authHeader != "" {
+				token = strings.TrimPrefix(strings.TrimSpace(authHeader), "Bearer ")
+			}
+		}
 
-// 			return jwt.MapClaims{}
-// 		},
-// 		// How do we get the user back from the JWT?
-// 		IdentityHandler: func(c *gin.Context) any {
-// 			claims := ginjwt.ExtractClaims(c)
-// 			return &models.User{
-// 				Email: claims["email"].(string),
-// 				Name:  claims["name"].(string),
-// 				Role:  claims["role"].(string),
-// 			}
-// 		},
-// 		// Can this user log in?
-// 		Authenticator: func(c *gin.Context) (any, error) {
-// 			var loginVals Login
-// 			if err := c.ShouldBind(&loginVals); err != nil {
-// 				return "", ginjwt.ErrMissingLoginValues
-// 			}
-// 			email := loginVals.Email
-// 			password := loginVals.Password
+		if token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Token not provided in Authorization header or cookie"})
+			c.Abort()
+			return
+		}
 
-// 			return models.LoginByEmailAndPassword(email, password)
-// 		},
-// 		// Can this user access this route?
-// 		Authorizator: func(data any, c *gin.Context) bool {
-// 			if _, ok := data.(*models.User); ok {
-// 				return true
-// 			}
+		claims := jwt.MapClaims{}
+		_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (any, error) {
+			return []byte(authConfig.AccessToken), nil
+		})
 
-// 			return false
-// 		},
-// 		// What do we tell the client when it fails?
-// 		Unauthorized: func(c *gin.Context, code int, message string) {
-// 			c.JSON(code, gin.H{
-// 				"code":    code,
-// 				"message": message,
-// 			})
-// 		},
-// 		// TokenLookup is a string in the form of "<source>:<name>" that is used
-// 		// to extract token from the request.
-// 		// Optional. Default value "header:Authorization".
-// 		// Possible values:
-// 		// - "header:<name>"
-// 		// - "query:<name>"
-// 		// - "cookie:<name>"
-// 		// - "param:<name>"
-// 		TokenLookup: "header: Authorization, query: token, cookie: jwt",
-// 		// TokenLookup: "query:token",
-// 		// TokenLookup: "cookie:token",
+		if err != nil {
+			log.Printf("Error parsing token: %v", err)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized access"})
+			c.Abort()
+			return
+		}
 
-// 		// TokenHeadName is a string in the header. Default value is "Bearer"
-// 		TokenHeadName: "Bearer",
+		log.Println("Claims:", claims)
 
-// 		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
-// 		TimeFunc: time.Now,
-// 	})
+		userID, ok := claims["userID"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: missing or invalid id"})
+			c.Abort()
+			return
+		}
 
-// 	if err != nil {
-// 		log.Fatal("JWT Error:" + err.Error())
-// 	}
-// }
+		userEmail, ok := claims["email"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: missing or invalid email"})
+			c.Abort()
+			return
+		}
+
+		userRole, ok := claims["role"].(string)
+
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: missing or invalid role"})
+			c.Abort()
+			return
+		}
+
+		if userID == "" || userEmail == "" || userRole != "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: missing or invalid userID or email or role"})
+			c.Abort()
+			return
+		}
+
+		log.Printf("User email and userID after authorized access token: %s, %v", userEmail, userID)
+
+		idUUID, err := utils.IsUUID(userID)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: invalid id"})
+			c.Abort()
+			return
+		}
+
+		var user models.User
+		result := db.Where("user_id = ? AND email = ?", idUUID, userEmail).First(&user)
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"error": "User does not exist"})
+			} else {
+				log.Printf("Database error: %v", result.Error)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error finding user in database"})
+			}
+			c.Abort()
+			return
+		}
+
+		userStruct := map[string]any{
+			"userID": user.UserID.String(),
+			"email":  user.Email,
+			"role":   user.Role,
+		}
+		c.Set("user", userStruct)
+		c.Next()
+	}
+}
