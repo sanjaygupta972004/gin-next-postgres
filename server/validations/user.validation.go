@@ -23,6 +23,15 @@ const (
 	Other  UserGender = "other"
 )
 
+func IsValidGender(ug *UserGender) bool {
+	switch *ug {
+	case Male, Female, Other:
+		return true
+	default:
+		return false
+	}
+}
+
 func validatePassword(password string) error {
 	if len(password) < 8 {
 		return errors.New("password must be at least 8 characters long")
@@ -88,8 +97,9 @@ func ValidateUser(u User) error {
 	if u.Role != UserRoleAdmin && u.Role != UserRoleUser && u.Role != GuestUser {
 		return errors.New("invalid user role")
 	}
-	if u.Gender != Male && u.Gender != Female && u.Gender != Other {
-		return errors.New("invalid gender")
+	isValid := IsValidGender(&u.Gender)
+	if !isValid {
+		return errors.New("invalid user gender")
 	}
 	return nil
 }

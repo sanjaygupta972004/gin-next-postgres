@@ -36,7 +36,7 @@ func (u *UserRole) Value() (driver.Value, error) {
 }
 
 // check if user role is valid
-func (u *UserRole) IsValid() bool {
+func (u *UserRole) IsRoleValid() bool {
 	switch *u {
 	case UserRoleAdmin, UserRoleUser, GuestUser:
 		return true
@@ -46,22 +46,20 @@ func (u *UserRole) IsValid() bool {
 }
 
 type User struct {
-	UserID             uuid.UUID      `gorm:"type:uuid;primaryKey;unique; not null; index" json:"userID"`
-	FullName           string         `gorm:"not null " json:"fullName"`
-	Username           string         `gorm:"unique;not null" json:"username"`
-	Email              string         `gorm:"unique;not null" json:"email"`
-	ProfileImage       string         `gorm:"default:null" json:"profileImage"`
-	Gender             string         `gorm:"default:null" json:"gender"`
-	Role               UserRole       `gorm:"type:user_role;not null;default:'user'" json:"role"`
-	BannerImage        string         `gorm:"default:null" json:"bannerImage"`
-	PassWord           string         `gorm:"not null" json:"password"`
-	AuthToken          string         `gorm:"default:null" json:"authToken"`
-	ResetPasswordToken string         `gorm:"default:null" json:"resetPasswordToken"`
-	RefreshToken       string         `gorm:"default:null" json:"refreshToken"`
-	IsAdmin            bool           `gorm:"default:false" json:"isAdmin"`
-	CreatedAt          time.Time      `gorm:"autoCreateTime" json:"createdAt"`
-	UpdatedAt          time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
-	DeletedAt          gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+	UserID           uuid.UUID      `gorm:"type:uuid;primaryKey;unique; not null; index" json:"userID"`
+	FullName         string         `gorm:"not null " json:"fullName"`
+	Username         string         `gorm:"unique;not null" json:"username"`
+	Email            string         `gorm:"unique;not null" json:"email"`
+	ProfileImage     string         `gorm:"default:null" json:"profileImage"`
+	Gender           string         `gorm:"default:null" json:"gender"`
+	Role             UserRole       `gorm:"type:user_role;not null;default:'user'" json:"role"`
+	BannerImage      string         `gorm:"default:null" json:"bannerImage"`
+	PassWord         string         `gorm:"not null" json:"password"`
+	AuthOtp          int            `gorm:"default:null" json:"authOtp"`
+	ResetPasswordOtp string         `gorm:"default:null" json:"resetPasswordOtp"`
+	CreatedAt        time.Time      `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt        time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
+	DeletedAt        gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 }
 
 func CreateEnumUserRole(db *gorm.DB) error {
@@ -81,6 +79,7 @@ func CreateEnumUserRole(db *gorm.DB) error {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
+
 	id := uuid.Must(uuid.NewV4())
 	if id != uuid.Nil {
 		u.UserID = id

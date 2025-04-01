@@ -14,11 +14,12 @@ func SignAccessToken(user *models.User) (string, error) {
 	authConfig := config.GetGlobalConfig().AuthToken
 
 	claims := jwt.MapClaims{
-		"userID": user.UserID.String(),
-		"email":  user.Email,
-		"role":   user.Role,
-		"iss":    "go-gin-postgres",
-		"exp":    time.Now().Add(time.Hour * 12).Unix(),
+		"userID":   user.UserID.String(),
+		"email":    user.Email,
+		"role":     user.Role,
+		"username": user.Username,
+		"iss":      "go-gin-postgres",
+		"exp":      time.Now().Add(time.Hour * 12).Unix(),
 	}
 
 	if authConfig.AccessToken == "" {
@@ -39,11 +40,12 @@ func SignRefreshToken(user *models.User) (string, error) {
 	authConfig := config.GetGlobalConfig().AuthToken
 
 	claims := jwt.MapClaims{
-		"userID": user.UserID.String(),
-		"email":  user.Email,
-		"role":   user.Role,
-		"iss":    "go-gin-postgres",
-		"exp":    time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"userID":   user.UserID.String(),
+		"email":    user.Email,
+		"role":     user.Role,
+		"username": user.Username,
+		"iss":      "go-gin-postgres",
+		"exp":      time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}
 
 	if authConfig.RefreshToken == "" {
