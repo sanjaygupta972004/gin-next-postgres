@@ -1,9 +1,14 @@
 # Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+/bin/
+/tmp/main
+gin-bin
+/pkg/
+/*.exe
+/*.exe~
+/*.dll
+/*.so
+/*.dylib
+/main
 
 # Build and debug artifacts
 *.out
@@ -11,6 +16,7 @@
 *.log
 *.tmp
 *.swp
+
 
 # Dependency directories (Go modules and vendor)
 /vendor/

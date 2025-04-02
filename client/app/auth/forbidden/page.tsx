@@ -1,8 +1,8 @@
 function ForbiddenPage() {
   return (
-    <div>
-      Forbidden
-    </div>
+    <h1 className="text-2xl text-center font-semibold mt-20">
+      You are not allowed to visit this page
+    </h1>
   )
 }
 

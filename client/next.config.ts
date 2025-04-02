@@ -6,7 +6,15 @@ const env = {
 
 const nextConfig: NextConfig = {
   /* config options here */
-  env: env
+  env: env,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      }
+    ]
+  }
 };
 
 export default nextConfig;

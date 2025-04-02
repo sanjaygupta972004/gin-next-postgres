@@ -22,7 +22,7 @@
    ```
 3. Run migration
    ```bash
-   go /migrate/migrate.go
+   go run migrate/migrate.go
    ```
 3. Run the server
    ```bash

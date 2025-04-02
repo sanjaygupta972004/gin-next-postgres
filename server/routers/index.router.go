@@ -18,6 +18,6 @@ func SetUpIndexRouter(router *gin.RouterGroup) {
 			})
 		})
 
-		index.GET("/api/version", indexController.GetVersion)
+		index.GET("/version", indexController.GetVersion)
 	}
 }

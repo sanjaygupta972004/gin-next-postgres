@@ -31,22 +31,25 @@ export default function Header() {
   }, [isShowUserDropdown]);
 
   return (
-    <header className="border-b border-dashed border-b-zinc-800 py-2 px-8 flex justify-between items-center">
+    <div className="z-10 fixed left-0 right-0 top-0 bg-zinc-950/10 backdrop-blur-sm border-b border-dashed border-b-zinc-800 py-2 px-8 flex justify-between items-center">
       <Link href="/" >
         <Image src="/logo.png" alt="logo" width={71} height={48} className="py-1.5 h-12 w-auto object-contain" />
       </Link>
       {user ?
         <div className="relative">
-          <p
-            className="flex items-center gap-2 font-semibold cursor-pointer"
+          <div
+            className="flex items-center gap-2 font-semibold cursor-pointer text-[14px]"
             onClick={() => setIsShowUserDropdown(!isShowUserDropdown)}
           >
-            <FaUserTie size={18} />{user.name}
-          </p>
+            <div className="border border-solid border-white rounded-full p-1">
+              <FaUserTie size={18} />
+            </div>
+            {user.name}
+          </div>
           {isShowUserDropdown &&
             <div
               ref={dropdownRef}
-              className="flex flex-col gap-2 absolute translate-y-2 top-full right-0 p-2 border border-solid border-zinc-800 rounded-lg bg-zinc-900/10 backdrop-blur-2xl"
+              className="!z-10 flex flex-col gap-2 absolute translate-y-2 top-full right-0 p-2 border border-solid border-zinc-900 rounded-lg bg-zinc-900"
             >
               {user.role === 'admin' &&
                 <>
@@ -81,6 +84,6 @@ export default function Header() {
           <FaSignInAlt />Login
         </button>
       }
-    </header>
+    </div>
   )
 }

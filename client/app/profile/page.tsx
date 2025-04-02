@@ -1,22 +1,71 @@
 "use client";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/common/Button";
+import Section from "@/components/common/Section";
+import { FormInputText } from "@/components/form/textinput";
 import withAuth from "@/components/hoc/withAuth";
-import { useAuth } from "@/context/AuthContext";
+import { isUser, User } from "@/types/user.type";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { api_getme } from "@/api/auth";
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const getProfile = async () => {
+    const me = (await api_getme()).data;
+    if (!isUser(me))
+      return { name: "", email: "", role: "user" }
+    else
+      return me as User;
+  };
 
+  const userSchema = yup.object().shape({
+    name: yup.string().required("Full name is required"),
+    email: yup.string().required("Email is required"),
+    role: yup.string()
+  });
+
+  const { control, handleSubmit } = useForm<User>({
+    resolver: yupResolver(userSchema), defaultValues: async () => getProfile()
+  });
+  const onSubmit = (user: User) => {
+    console.log(user);
+  }
   return (
-    <div className="flex flex-col gap-8 text-[16px] rounded-lg p-8 border border-solid border-zinc-800">
-      <p>
-        Name: <b>{user?.name}</b>
-      </p>
-      <p>
-        Email:<b> {user?.email}</b>
-      </p>
-      <p>
-        Role: <b>{user?.role}</b>
-      </p>
-    </div>
+    <form className="flex flex-col gap-10" onSubmit={handleSubmit(onSubmit)}>
+      <div className="flex flex-col relative mb-25">
+        <Image src="https://picsum.photos/id/20/1000/200" width={1000} height={200} alt="banner" className="w-full object-contain rounded-xl !z-0" />
+        <Image
+          src="https://picsum.photos/id/91/200/200"
+          width={200}
+          height={200}
+          alt="banner"
+          className="bg-zinc-950 p-2 absolute top-full bottom-0 left-[50%] -translate-x-[50%] -translate-y-[50%] w-50 object-contain rounded-full"
+        />
+      </div>
+      <Section label="User Information">
+        <FormInputText
+          label="Name"
+          control={control}
+          name="name"
+        />
+        <FormInputText
+          label="Email"
+          control={control}
+          name="email"
+        />
+        <FormInputText
+          label="Role"
+          control={control}
+          name="role"
+          disabled
+        />
+      </Section>
+      <div className="flex justify-end items-center gap-8">
+        <Button isPrimary customClass="w-40">Save Profile</Button>
+        <Button isPrimary={false} customClass="w-40">Discard</Button>
+      </div>
+    </form>
   );
 }
 

@@ -10,9 +10,16 @@ const withAdminAuth = (WrappedComponent: React.FC): React.FC => {
     const router = useRouter();
 
     useEffect(() => {
-      if (isLoading) return;
-      if (user?.role !== 'admin')
+      if (isLoading)
+        return;
+      if (!user) {
+        router.push(ROUTER.Login)
+        return;
+      }
+      if (user?.role !== 'admin') {
         router.push(ROUTER.Forbidden);
+        return;
+      }
     }, [router, isLoading, user]);
 
     return <WrappedComponent {...props} />;
