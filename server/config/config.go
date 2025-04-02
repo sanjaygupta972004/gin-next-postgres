@@ -14,6 +14,7 @@ type Configuration struct {
 	Server    ServerConfig
 	Database  DatabaseConfig
 	AuthToken AuthToken
+	AWS       AWSConfig
 }
 
 // ServerConfig holds server-related settings
@@ -25,6 +26,23 @@ type ServerConfig struct {
 	DocumentDir        string
 	MaxMultipartMemory int64
 	SecurityKey        string
+}
+
+// AWS configuration veriable
+type AWSConfig struct {
+	Region         string
+	BucketName     string
+	SesSenderEmail string
+}
+
+// Load AWS configuration from environment variables
+func LoadAWSConfig() (AWSConfig, error) {
+	awsConfig := AWSConfig{
+		BucketName:     getEnvOrDefault("AWS_BUCKET_NAME", ""),
+		Region:         getEnvOrDefault("AWS_REGION", ""),
+		SesSenderEmail: getEnvOrDefault("SES_SENDER_EMAIL", ""),
+	}
+	return awsConfig, nil
 }
 
 // DatabaseConfig holds database settings
@@ -121,6 +139,12 @@ func LoadGlobalConfig() error {
 			return
 		}
 
+		awsConfig, err := LoadAWSConfig()
+		if err != nil {
+			loadError = err
+			return
+		}
+
 		databaseConfig, err := LoadDatabaseConfig()
 		if err != nil {
 			loadError = err
@@ -138,6 +162,7 @@ func LoadGlobalConfig() error {
 			Server:    serverConfig,
 			Database:  databaseConfig,
 			AuthToken: authToken,
+			AWS:       awsConfig,
 		}
 		isLoaded = true
 		mu.Unlock()
