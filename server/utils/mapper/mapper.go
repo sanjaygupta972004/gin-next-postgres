@@ -11,9 +11,8 @@ func UserToUserResponse(user models.User) *dto.UserResponse {
 		FullName:  user.FullName,
 		Username:  user.Username,
 		Email:     user.Email,
-		Role:      user.Role,
+		Role:      string(user.Role),
 		Gender:    user.Gender,
-		IsAdmin:   user.IsAdmin,
 		CreatedAt: user.CreatedAt.String(),
 		UpdatedAt: user.UpdatedAt.String(),
 		DeletedAt: func() string {

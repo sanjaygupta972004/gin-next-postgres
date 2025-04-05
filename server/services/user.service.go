@@ -1,11 +1,14 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/savvy-bit/gin-react-postgres/dto"
 	"github.com/savvy-bit/gin-react-postgres/models"
 	"github.com/savvy-bit/gin-react-postgres/repositories"
 	"github.com/savvy-bit/gin-react-postgres/utils"
 	"github.com/savvy-bit/gin-react-postgres/utils/mapper"
+	"github.com/savvy-bit/gin-react-postgres/validations"
 )
 
 type UserService interface {
@@ -72,12 +75,15 @@ func (s *userService) UpdateUserProfile(userID string, updateUserRequest dto.Use
 	if err != nil {
 		return nil, err
 	}
+	gender := validations.UserGender(updateUserRequest.Gender)
+	isValidGender := validations.IsValidGender(&gender)
+	if !isValidGender {
+		return nil, errors.New("invalid user gender")
+	}
 	userData, err := s.repo.UpdateUser(userUUID, &models.User{
 		FullName: updateUserRequest.FullName,
 		Username: updateUserRequest.Username,
-		Role:     models.UserRole(updateUserRequest.Role),
-		IsAdmin:  updateUserRequest.IsAdmin,
-		Gender:   updateUserRequest.Gender,
+		Gender:   string(gender),
 	})
 	if err != nil {
 		return nil, err

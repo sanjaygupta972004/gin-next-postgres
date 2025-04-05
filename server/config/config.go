@@ -11,8 +11,10 @@ import (
 
 // GlobalConfig holds the entire configuration
 type Configuration struct {
-	Server   ServerConfig
-	Database DatabaseConfig
+	Server    ServerConfig
+	Database  DatabaseConfig
+	AuthToken AuthToken
+	AWS       AWSConfig
 }
 
 // ServerConfig holds server-related settings
@@ -26,9 +28,32 @@ type ServerConfig struct {
 	SecurityKey        string
 }
 
+// AWS configuration veriable
+type AWSConfig struct {
+	Region         string
+	BucketName     string
+	SesSenderEmail string
+}
+
+// Load AWS configuration from environment variables
+func LoadAWSConfig() (AWSConfig, error) {
+	awsConfig := AWSConfig{
+		BucketName:     getEnvOrDefault("AWS_BUCKET_NAME", ""),
+		Region:         getEnvOrDefault("AWS_REGION", ""),
+		SesSenderEmail: getEnvOrDefault("SES_SENDER_EMAIL", ""),
+	}
+	return awsConfig, nil
+}
+
 // DatabaseConfig holds database settings
 type DatabaseConfig struct {
 	URL string
+}
+
+// AuthToken holds authentication tokens
+type AuthToken struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 var (
@@ -86,6 +111,18 @@ func LoadDatabaseConfig() (DatabaseConfig, error) {
 	return DatabaseConfig{URL: dbURL}, nil
 }
 
+// load auth token secret from env
+func LoadAuthToken() (AuthToken, error) {
+	accessToken := getEnvOrDefault("ACCESS_TOKEN", "")
+	refreshToken := getEnvOrDefault("REFRESH_TOKEN", "")
+
+	if accessToken == "" || refreshToken == "" {
+		return AuthToken{}, fmt.Errorf("ACCESS_TOKEN and REFRESH_TOKEN are required but missing")
+
+	}
+	return AuthToken{AccessToken: accessToken, RefreshToken: refreshToken}, nil
+}
+
 // Load all configurations into the global instance
 func LoadGlobalConfig() error {
 	var loadError error
@@ -102,7 +139,19 @@ func LoadGlobalConfig() error {
 			return
 		}
 
+		awsConfig, err := LoadAWSConfig()
+		if err != nil {
+			loadError = err
+			return
+		}
+
 		databaseConfig, err := LoadDatabaseConfig()
+		if err != nil {
+			loadError = err
+			return
+		}
+
+		authToken, err := LoadAuthToken()
 		if err != nil {
 			loadError = err
 			return
@@ -110,8 +159,10 @@ func LoadGlobalConfig() error {
 
 		mu.Lock()
 		configInstance = &Configuration{
-			Server:   serverConfig,
-			Database: databaseConfig,
+			Server:    serverConfig,
+			Database:  databaseConfig,
+			AuthToken: authToken,
+			AWS:       awsConfig,
 		}
 		isLoaded = true
 		mu.Unlock()
