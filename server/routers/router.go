@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"gorm.io/gorm"
@@ -46,11 +48,15 @@ func SetupDefaultRouter(router *gin.Engine, port string) {
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
-			"message": "Server is running and healthy",
-			"status":  "healthy",
+			"message": "Welcome to the gin-next application",
+			"status":  "ok",
 			"code":    200,
 			"error":   nil,
-			"data":    nil,
+			"data": gin.H{
+				"app_name": "gin-next",
+				"version":  "1.0.0",
+				"message":  fmt.Sprintf("Server is running on port %d", 8080),
+			},
 		})
 	})
 }

@@ -1,6 +1,7 @@
 package authHelper
 
 import (
+	"crypto/rand"
 	"errors"
 	"time"
 
@@ -60,6 +61,19 @@ func SignRefreshToken(user *models.User) (string, error) {
 
 	return signRefreshToken, nil
 
+}
+
+func GenerateOTP(length int) (string, error) {
+	const digits = "0123456789"
+	otp := make([]byte, length)
+	_, err := rand.Read(otp)
+	if err != nil {
+		return "", err
+	}
+	for i := 0; i < length; i++ {
+		otp[i] = digits[int(otp[i])%len(digits)]
+	}
+	return string(otp), nil
 }
 
 // will have to implement email verification and password reset logic here in future

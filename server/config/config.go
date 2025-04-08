@@ -26,6 +26,7 @@ type ServerConfig struct {
 	DocumentDir        string
 	MaxMultipartMemory int64
 	SecurityKey        string
+	ClientURL          string
 }
 
 // AWS configuration veriable
@@ -38,8 +39,8 @@ type AWSConfig struct {
 // Load AWS configuration from environment variables
 func LoadAWSConfig() (AWSConfig, error) {
 	awsConfig := AWSConfig{
-		BucketName:     getEnvOrDefault("AWS_BUCKET_NAME", ""),
 		Region:         getEnvOrDefault("AWS_REGION", ""),
+		BucketName:     getEnvOrDefault("AWS_BUCKET_NAME", ""),
 		SesSenderEmail: getEnvOrDefault("SES_SENDER_EMAIL", ""),
 	}
 	return awsConfig, nil
@@ -82,6 +83,7 @@ func LoadServerConfig() (ServerConfig, error) {
 		DocumentDir:        getEnvOrDefault("DOCUMENT_DIR", "./docs"),
 		MaxMultipartMemory: 8 * 1024 * 1024, // 8 MB
 		SecurityKey:        getEnvOrDefault("SECURITY_KEY", ""),
+		ClientURL:          getEnvOrDefault("CLIENT_URL", ""),
 	}
 
 	// Validate required fields

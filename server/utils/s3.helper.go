@@ -12,7 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, bucketName string, s3Client *s3.Client) (string, error) {
+func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, bucketName, region string, s3Client *s3.Client) (string, error) {
 	fileExt := filepath.Ext(fileHeader.Filename)
 	uid, err := uuid.NewV4()
 	if err != nil {
@@ -35,7 +35,12 @@ func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, bucke
 	if err != nil {
 		return "", fmt.Errorf("failed to upload file to S3: %w", err)
 	}
+	fmt.Println("region", region)
+	if region == "" {
+		return "", fmt.Errorf("region is not set in S3 client options")
+	}
 
-	s3URL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", bucketName, fileName)
+	s3URL := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName)
+
 	return s3URL, nil
 }

@@ -9,9 +9,9 @@ import (
 
 func MigrateModels(db *gorm.DB) error {
 	var err error = nil
-	if err = db.Migrator().DropTable(&models.User{}); err != nil {
-		panic("Failed to drop tables: " + err.Error())
-	}
+	// if err = db.Migrator().DropTable(&models.User{}); err != nil {
+	// 	panic("Failed to drop tables: " + err.Error())
+	// }
 	if err := models.CreateEnumUserRole(db); err != nil {
 		return err
 	}
