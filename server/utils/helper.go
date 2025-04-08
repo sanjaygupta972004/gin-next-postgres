@@ -3,8 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 
@@ -24,16 +22,18 @@ func IsUUID(id string) (uuid.UUID, error) {
 	return idUUID, nil
 }
 
-func ErrorResponse(ctx *gin.Context, statusCode int, customMessage string, details error) {
-	if details != nil {
-		log.Printf("Error : %v", details)
+func ErrorResponse(ctx *gin.Context, statusCode int, customMessage string, details any) {
+	var detailMessage any = details
+	if err, ok := details.(error); ok {
+		detailMessage = err.Error()
 	}
-	fmt.Println("Error in helper function : ", details)
+	fmt.Println("Error : ", details)
 
 	ctx.JSON(statusCode, gin.H{
 		"success": false,
 		"message": customMessage,
-		"error":   details,
+		"error":   detailMessage,
+		"data":    nil,
 	})
 }
 
@@ -75,4 +75,11 @@ func GetUserIdFromHeader(c *gin.Context) (string, error) {
 		return "", fmt.Errorf("failed to extract user ID from map")
 	}
 	return userID, nil
+}
+
+func ValidateJSONBody(c *gin.Context, requestData any) error {
+	if err := c.ShouldBindJSON(&requestData); err != nil {
+		return fmt.Errorf("failed to bind JSON: %v", err)
+	}
+	return nil
 }

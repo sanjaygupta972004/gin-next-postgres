@@ -3,6 +3,7 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/savvy-bit/gin-react-postgres/controllers"
+	"github.com/savvy-bit/gin-react-postgres/middlewares"
 	"github.com/savvy-bit/gin-react-postgres/repositories"
 	"github.com/savvy-bit/gin-react-postgres/services"
 	"gorm.io/gorm"
@@ -63,6 +64,7 @@ func SetUpUserRouter(router *gin.RouterGroup, db *gorm.DB) {
 	userService := services.NewUserService(userRepository)
 
 	userController := controllers.NewUserController(userService)
+	authMiddleware := middlewares.JWTVerifyForUser(db)
 
 	user := router.Group("/user")
 	{
@@ -74,6 +76,9 @@ func SetUpUserRouter(router *gin.RouterGroup, db *gorm.DB) {
 		})
 
 		user.POST("/register", userController.RegisterUser)
+		user.POST(("/verify-email/:userID"), userController.VerifyEmail)
+		user.POST("/login", userController.LoginUser)
+		user.GET("/get-profile", authMiddleware, userController.GetUserProfile)
 
 	}
 }

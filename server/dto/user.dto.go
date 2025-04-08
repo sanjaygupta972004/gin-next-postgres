@@ -6,6 +6,20 @@ type UserUpdateRequest struct {
 	Gender   string `json:"gender"`
 }
 
+type UserLoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
+type UserRegisterRequest struct {
+	FullName string `json:"fullName" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+	Gender   string `json:"gender" binding:"required"`
+	Role     string `json:"role" binding:"required,oneof=admin user guest"`
+}
+
 type UserResponse struct {
 	UserID       string `json:"userID"`
 	FullName     string `json:"fullName"`
@@ -21,6 +35,6 @@ type UserResponse struct {
 }
 
 type UserLoginResponse struct {
-	AccessToken  string `json:"token"`
+	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }

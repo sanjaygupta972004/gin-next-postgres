@@ -56,7 +56,9 @@ type User struct {
 	BannerImage      string         `gorm:"default:null" json:"bannerImage"`
 	PassWord         string         `gorm:"not null" json:"password"`
 	AuthOtp          int            `gorm:"default:null" json:"authOtp"`
+	IsEmailVerified  bool           `gorm:"default:false" json:"isEmailVerified"`
 	ResetPasswordOtp string         `gorm:"default:null" json:"resetPasswordOtp"`
+	RefreshToken     string         `gorm:"default:null" json:"refreshToken"`
 	CreatedAt        time.Time      `gorm:"autoCreateTime" json:"createdAt"`
 	UpdatedAt        time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
 	DeletedAt        gorm.DeletedAt `gorm:"index" json:"deletedAt"`

@@ -72,7 +72,7 @@ func JWTVerifyForUser(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if userID == "" || userEmail == "" || userRole != "" {
+		if userID == "" || userEmail == "" || userRole == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token: missing or invalid userID or email or role"})
 			c.Abort()
 			return
