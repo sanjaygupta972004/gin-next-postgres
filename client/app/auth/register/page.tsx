@@ -18,13 +18,13 @@ const LoginPage: React.FC = () => {
     <Section className="w-[400px] m-auto">
       <InputText
         label="Email"
-        labelIcon={<FaEnvelope size={16} />}
+        labelIcon={<FaEnvelope />}
         value={credentials.email}
         onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
       />
       <InputText
         label="Password"
-        labelIcon={<FaKey size={16} />}
+        labelIcon={<FaKey />}
         onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
         type="password"
       />
@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
           onClick={() => router.push(ROUTER.Login)}
           isPrimary={false}
         >
-          Already have account
+          Already have account?
         </Button>
       </div>
     </Section >
