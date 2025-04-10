@@ -31,7 +31,7 @@ func JWTVerifyForUser(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if token == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Token not provided in Authorization header or cookie"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token not provided in Authorization header or cookie"})
 			c.Abort()
 			return
 		}

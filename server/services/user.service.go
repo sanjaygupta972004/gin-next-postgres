@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/dto"
@@ -19,6 +21,8 @@ type UserService interface {
 	LoginUser(userLoginReq *dto.UserLoginRequest) (*dto.UserLoginResponse, error)
 	LogoutUser(userID string) (message string, err error)
 	VerifyEmail(userID string, authOtp int) (message string, err error)
+	RegenerateAuthTokens(userID string) (*dto.UserLoginResponse, error)
+	RegenerateAuthOtp(userID string) (message string, err error)
 	GetUserProfile(userID string) (*dto.UserResponse, error)
 	UpdateUserProfile(userID string, updateUserRequest dto.UserUpdateRequest) (*dto.UserResponse, error)
 	DeleteUserProfile(userID string) (message string, err error)
@@ -63,13 +67,61 @@ func (s *userService) CreateUser(user *models.User) (*dto.UserResponse, error) {
 	if err := email.SendEmail(sslClient, user.Email, "Verify your registration", emailBody); err != nil {
 		return nil, err
 	}
-	if err := db.Model(userData).Update("auth_otp", otp).Error; err != nil {
+	// update user with OTP and expiry time
+	// set expiry time to 1 hour
+	currentTime := time.Now()
+	if err := db.Model(userData).Updates(map[string]any{
+		"auth_otp":             otp,
+		"auth_otp_expiry_time": currentTime.Add(1 * time.Hour),
+	}).Error; err != nil {
 		return nil, err
 	}
-
 	return mapper.UserToUserResponse(*userData), nil
 }
 
+func (s *userService) RegenerateAuthTokens(userID string) (*dto.UserLoginResponse, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+	userData, db, err := s.repo.RegenerateAuthTokens(userUUID)
+	if err != nil {
+		return nil, err
+	}
+	accessToken, err := authHelper.SignAccessToken(userData)
+	if err != nil {
+		return nil, err
+	}
+	refreshToken, err := authHelper.SignRefreshToken(userData)
+	if err != nil {
+		return nil, err
+	}
+	if !userData.IsEmailVerified {
+		return nil, errors.New("email not verified")
+	}
+
+	if userData.RefreshTokenExpiryTime.Before(time.Now()) {
+		return nil, errors.New("refresh token expired please login again")
+	}
+	if err := db.Model(userData).Updates(map[string]any{
+		"refresh_token":             refreshToken,
+		"refresh_token_expiry_time": time.Now().Add(7 * 24 * time.Hour),
+	}).Error; err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, err
+	}
+	responseUserData := mapper.UserToUserResponse(*userData)
+	userLoginResponse := &dto.UserLoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Data:         responseUserData,
+	}
+
+	return userLoginResponse, nil
+
+}
 func (s *userService) VerifyEmail(userID string, authOtp int) (string, error) {
 	serverConfig := config.GetGlobalConfig().Server
 	if serverConfig.ClientURL == "" {
@@ -80,10 +132,24 @@ func (s *userService) VerifyEmail(userID string, authOtp int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	userData, err := s.repo.VerifyAuthOtp(userUUID, authOtp)
+	userData, db, err := s.repo.VerifyAuthOtp(userUUID)
 	if err != nil {
 		return "", err
 	}
+	if userData.AuthOtp != authOtp {
+		return "", errors.New("invalid OTP")
+	}
+	if time.Now().After(userData.AuthOtpExpiryTime) {
+		return "", errors.New("OTP expired")
+	}
+	if err := db.Model(userData).Updates(map[string]any{
+		"is_email_verified":    true,
+		"auth_otp":             nil,
+		"auth_otp_expiry_time": nil,
+	}).Error; err != nil {
+		return "", err
+	}
+
 	sslClient, err := email.SESAWSClient()
 	if err != nil {
 		return "", err
@@ -103,6 +169,48 @@ func (s *userService) VerifyEmail(userID string, authOtp int) (string, error) {
 
 	return "Email verified successfully", nil
 
+}
+
+func (s *userService) RegenerateAuthOtp(userID string) (string, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return "", err
+	}
+	userData, db, err := s.repo.RegenerateAuthOtp(userUUID)
+	if err != nil {
+		return "", err
+	}
+
+	otp, err := authHelper.GenerateOTP(6)
+	if err != nil {
+		return "", err
+	}
+
+	emailBody, err := email.RanderEmailAuthTemplate("email_verification.html", map[string]string{
+		"OTP_CODE": otp,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	sslClient, err := email.SESAWSClient()
+	if err != nil {
+		return "", err
+	}
+
+	if err := email.SendEmail(sslClient, userData.Email, "Verify your registration", emailBody); err != nil {
+		return "", err
+	}
+	fmt.Println("OTP sent to email:", userData.Email)
+	currentTime := time.Now()
+	if err := db.Model(userData).Updates(map[string]any{
+		"auth_otp":             otp,
+		"auth_otp_expiry_time": currentTime.Add(1 * time.Hour),
+	}).Error; err != nil {
+		return "", err
+	}
+	return "OTP sent successfully", nil
 }
 
 func (s *userService) LoginUser(userLoginReq *dto.UserLoginRequest) (*dto.UserLoginResponse, error) {
@@ -126,16 +234,22 @@ func (s *userService) LoginUser(userLoginReq *dto.UserLoginRequest) (*dto.UserLo
 		return nil, err
 	}
 
-	if err := db.Model(userData).Update("refresh_token", refreshToken).Error; err != nil {
+	if err := db.Model(userData).Updates(map[string]any{
+		"refresh_token":             refreshToken,
+		"refresh_token_expiry_time": time.Now().Add(7 * 24 * time.Hour),
+	}).Error; err != nil {
 		return nil, err
 	}
 
 	if err != nil {
 		return nil, err
 	}
+	responseUserData := mapper.UserToUserResponse(*userData)
+
 	userLoginResponse := &dto.UserLoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		Data:         responseUserData,
 	}
 	return userLoginResponse, nil
 }
