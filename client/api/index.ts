@@ -54,12 +54,12 @@ api.interceptors.request.use((config) => {
     return config;
   }
   config.headers['Content-Type'] = 'application/json';
-  if (config.data) {
-    config.data = { ...decamelizeKeys(config.data) };
-  }
-  if (config.params) {
-    config.params = { ...decamelizeKeys(config.params) };
-  }
+  // if (config.data) {
+  //   config.data = { ...decamelizeKeys(config.data) };
+  // }
+  // if (config.params) {
+  //   config.params = { ...decamelizeKeys(config.params) };
+  // }
   return config;
 });
 

@@ -1,9 +1,14 @@
-import { API_AUTH_GETME, API_AUTH_LOGIN, API_REFRESH_TOKEN, API_UPDATE_PROFILE } from "@/constants/endpoint";
+import { API_AUTH_GETME, API_AUTH_LOGIN, API_REFRESH_TOKEN, API_UPDATE_PROFILE, API_USER_REGISTER } from "@/constants/endpoint";
 import api from "..";
 import { User } from "@/types/user.type";
+import { AuthRegisterRequest } from "@/types/auth.type";
 
 export const api_login = (email: string, password: string) => {
     return api.post(API_AUTH_LOGIN, { email, password });
+}
+
+export const api_user_register = (request: AuthRegisterRequest) => {
+    return api.post(API_USER_REGISTER, { ...request });
 }
 
 export const api_getme = () => {

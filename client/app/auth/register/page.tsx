@@ -1,37 +1,64 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaEnvelope, FaKey } from "react-icons/fa";
-import { AuthCredentials } from "@/types/auth.type";
+import { FaEnvelope, FaLock, FaUnlock, FaUser, FaUserTag } from "react-icons/fa";
+import { AuthRegisterRequest } from "@/types/auth.type";
 import InputText from "@/components/common/InputBox";
 import Section from "@/components/common/Section";
 import { Button } from "@/components/common/Button";
 import { ROUTER } from "@/constants/common";
+import { useAuth } from "@/context/AuthContext";
 
 
 const LoginPage: React.FC = () => {
-  const [credentials, setCredentials] = useState<AuthCredentials>({ email: "", password: "" })
 
+  const { register } = useAuth();
   const router = useRouter();
+
+  const [request, setRequest] = useState<AuthRegisterRequest>({
+    fullName: "",
+    username: "",
+    email: "",
+    password: "",
+    gender: "male",
+    role: "user",
+  })
 
   return (
     <Section className="w-[400px] m-auto">
       <InputText
+        label="Full Name"
+        labelIcon={<FaUser />}
+        onChange={(e) => setRequest({ ...request, fullName: e.target.value })}
+      />
+      <InputText
+        label="Username"
+        labelIcon={<FaUserTag />}
+        onChange={(e) => setRequest({ ...request, username: e.target.value })}
+      />
+      <InputText
         label="Email"
         labelIcon={<FaEnvelope />}
-        value={credentials.email}
-        onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+        value={request.email}
+        onChange={(e) => setRequest({ ...request, email: e.target.value })}
+        type="email"
       />
       <InputText
         label="Password"
-        labelIcon={<FaKey />}
-        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+        labelIcon={<FaLock />}
+        onChange={(e) => setRequest({ ...request, password: e.target.value })}
+        type="password"
+      />
+      <InputText
+        label="Confirm Password"
+        labelIcon={<FaUnlock />}
+        onChange={(e) => setRequest({ ...request, password: e.target.value })}
         type="password"
       />
       <div className="flex justify-evenly gap-4 mt-4">
         <Button
           customClass="w-30"
-          onClick={() => { }}
+          onClick={() => register(request)}
         >
           Reigster
         </Button>

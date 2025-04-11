@@ -3,15 +3,16 @@ import { useRouter } from 'next/navigation';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { isUser, User } from '@/types/user.type';
-import { AuthContextType, AuthCredentials } from '@/types/auth.type';
+import { AuthContextType, AuthCredentials, AuthRegisterRequest } from '@/types/auth.type';
 import { ROUTER } from '@/constants/common';
 import { CookiesStorage } from '@/lib/storage/cookie';
-import { api_getme, api_login, api_refresh_token } from '@/api/auth';
+import { api_getme, api_login, api_refresh_token, api_user_register } from '@/api/auth';
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   user: null,
   login: () => { },
+  register: () => { },
   logout: () => { },
 });
 
@@ -64,6 +65,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const register = async (request: AuthRegisterRequest) => {
+    try {
+      const res = (await api_user_register(request)).data;
+      toast.success("Successfully registered!");
+    } catch (err) {
+      // eslint-disable-next-line
+      toast.error((err as any)?.message || "Invalid credentials");
+      console.error("Failed to register", err);
+    }
+  }
+
   const logout = () => {
     setUser(null);
     CookiesStorage.clearCookieData("user");
@@ -76,7 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       user,
       login,
-      logout
+      logout,
+      register
     }}>
       {children}
     </AuthContext.Provider>
