@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/savvy-bit/gin-react-postgres/config"
 	"github.com/savvy-bit/gin-react-postgres/dto"
 	"github.com/savvy-bit/gin-react-postgres/models"
 	"github.com/savvy-bit/gin-react-postgres/services"
@@ -16,6 +20,8 @@ type UserController interface {
 	LoginUser(c *gin.Context)
 	LogoutUser(c *gin.Context)
 	VerifyEmail(c *gin.Context)
+	RegenerateAuthOtp(c *gin.Context)
+	RegenerateAuthTokens(c *gin.Context)
 	GetUserProfile(c *gin.Context)
 	UploadBannerImage(c *gin.Context)
 	UploadProfileImage(c *gin.Context)
@@ -81,6 +87,69 @@ func (u *userController) VerifyEmail(c *gin.Context) {
 	}
 	utils.SuccessResponse(c, http.StatusOK, message, nil)
 }
+func (u *userController) RegenerateAuthOtp(c *gin.Context) {
+	userID := c.Param("userID")
+	if userID == "" {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user ID from path:"), utils.ErrInternalServer)
+		return
+	}
+	message, err := u.userService.RegenerateAuthOtp(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to regenerate auth OTP: %v", err), utils.ErrInternalServer)
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, message, nil)
+}
+
+func (u *userController) RegenerateAuthTokens(c *gin.Context) {
+	var token string
+
+	authConfig := config.GetGlobalConfig().AuthToken
+
+	if cookieToken, err := c.Cookie("refreshToken"); err == nil {
+		token = cookieToken
+	}
+
+	if token == "" {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader != "" {
+			token = strings.TrimPrefix(strings.TrimSpace(authHeader), "Bearer ")
+		}
+	}
+
+	if token == "" {
+		utils.ErrorResponse(c, http.StatusBadRequest, "Token not provided in Authorization header or cookie", utils.ErrBadRequest)
+		return
+	}
+
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (any, error) {
+		return []byte(authConfig.RefreshToken), nil
+	})
+
+	if err != nil {
+		log.Printf("Error parsing token: %v", err)
+		utils.ErrorResponse(c, http.StatusUnauthorized, "Unauthorized access", utils.ErrUnauthorized)
+		return
+	}
+
+	log.Println("Claims:", claims)
+
+	userID, ok := claims["userID"].(string)
+	if !ok {
+		utils.ErrorResponse(c, http.StatusUnauthorized, "Invalid token: missing or invalid id", utils.ErrUnauthorized)
+		return
+	}
+
+	userData, err := u.userService.RegenerateAuthTokens(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to regenerate auth tokens: %v", err), utils.ErrInternalServer)
+		return
+	}
+	c.SetCookie("accessToken", userData.AccessToken, 3600*12, "/", "", false, true)
+	c.SetCookie("refreshToken", userData.RefreshToken, 3600*24*7, "/", "", false, true)
+	utils.SuccessResponse(c, http.StatusOK, "Auth tokens regenerated successfully", userData)
+}
 
 func (u *userController) LoginUser(c *gin.Context) {
 	var userLoginRequest dto.UserLoginRequest
@@ -94,17 +163,11 @@ func (u *userController) LoginUser(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusUnauthorized, fmt.Sprintf("failed to login user: %v", err), utils.ErrUnauthorized)
 		return
 	}
-	c.SetCookie("accessToken", user.AccessToken, 3600, "/", "", false, true)
+	c.SetCookie("accessToken", user.AccessToken, 3600*12, "/", "", false, true)
 	c.SetCookie("refreshToken", user.RefreshToken, 3600*24*7, "/", "", false, true)
 	utils.SuccessResponse(c, http.StatusOK, "User logged in successfully", user)
 }
 
-// DeleteUserProfile implements UserController.
-func (u *userController) DeleteUserProfile(c *gin.Context) {
-	panic("unimplemented")
-}
-
-// GetUserProfile implements UserController.
 func (u *userController) GetUserProfile(c *gin.Context) {
 	userID, err := utils.GetUserIdFromHeader(c)
 	if err != nil {
@@ -134,6 +197,10 @@ func (u *userController) LogoutUser(c *gin.Context) {
 	c.SetCookie("accessToken", "", -1, "/", "", false, true)
 	c.SetCookie("refreshToken", "", -1, "/", "", false, true)
 	utils.SuccessResponse(c, http.StatusOK, message, nil)
+}
+
+func (u *userController) DeleteUserProfile(c *gin.Context) {
+	panic("unimplemented")
 }
 
 // UpdateUserProfile implements UserController.
