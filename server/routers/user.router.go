@@ -32,6 +32,10 @@ func SetUpUserRouter(router *gin.RouterGroup, db *gorm.DB) {
 		user.GET("/logout", authMiddleware, userController.LogoutUser)
 		user.GET("/regenerate-auth-tokens", userController.RegenerateAuthTokens)
 		user.GET("/get-profile", authMiddleware, userController.GetUserProfile)
+		user.PATCH("/update-profile", authMiddleware, userController.UpdateUserProfile)
+		user.DELETE("/delete-profile", authMiddleware, userController.DeleteUserProfile)
+		user.PATCH("/upload-banner-image", authMiddleware, userController.UploadBannerImage)
+		user.PATCH("/upload-profile-image", authMiddleware, userController.UploadProfileImage)
 
 	}
 }

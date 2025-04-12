@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"time"
 
 	"github.com/savvy-bit/gin-react-postgres/config"
@@ -26,8 +27,8 @@ type UserService interface {
 	GetUserProfile(userID string) (*dto.UserResponse, error)
 	UpdateUserProfile(userID string, updateUserRequest dto.UserUpdateRequest) (*dto.UserResponse, error)
 	DeleteUserProfile(userID string) (message string, err error)
-	UploadProfileImage(userID string, profileImage string) (*dto.UserResponse, error)
-	UploadBannerImage(userID string, bannerImage string) (*dto.UserResponse, error)
+	UploadProfileImage(userID string, fileHeader *multipart.FileHeader) (*dto.UserResponse, error)
+	UploadBannerImage(userID string, fileHeader *multipart.FileHeader) (*dto.UserResponse, error)
 }
 
 type userService struct {
@@ -59,7 +60,7 @@ func (s *userService) CreateUser(user *models.User) (*dto.UserResponse, error) {
 		return nil, err
 	}
 
-	sslClient, err := email.SESAWSClient()
+	sslClient, err := config.NewSESClient()
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +110,7 @@ func (s *userService) RegenerateAuthTokens(userID string) (*dto.UserLoginRespons
 	}).Error; err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
+
 	responseUserData := mapper.UserToUserResponse(*userData)
 	userLoginResponse := &dto.UserLoginResponse{
 		AccessToken:  accessToken,
@@ -150,7 +149,7 @@ func (s *userService) VerifyEmail(userID string, authOtp int) (string, error) {
 		return "", err
 	}
 
-	sslClient, err := email.SESAWSClient()
+	sslClient, err := config.NewSESClient()
 	if err != nil {
 		return "", err
 	}
@@ -194,7 +193,7 @@ func (s *userService) RegenerateAuthOtp(userID string) (string, error) {
 		return "", err
 	}
 
-	sslClient, err := email.SESAWSClient()
+	sslClient, err := config.NewSESClient()
 	if err != nil {
 		return "", err
 	}
@@ -288,7 +287,7 @@ func (s *userService) UpdateUserProfile(userID string, updateUserRequest dto.Use
 	if !isValidGender {
 		return nil, errors.New("invalid user gender")
 	}
-	userData, err := s.repo.UpdateUser(userUUID, &models.User{
+	userData, err := s.repo.UpdateUser(userUUID, dto.UserUpdateRequest{
 		FullName: updateUserRequest.FullName,
 		Username: updateUserRequest.Username,
 		Gender:   string(gender),
@@ -310,12 +309,78 @@ func (s *userService) DeleteUserProfile(userID string) (string, error) {
 	return "User deleted successfully", nil
 }
 
-// UploadProfileImage
-func (s *userService) UploadProfileImage(userID string, profileImage string) (*dto.UserResponse, error) {
-	panic("unimplemented")
+func (s *userService) UploadProfileImage(userID string, fileHeader *multipart.FileHeader) (*dto.UserResponse, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if fileHeader == nil {
+		return nil, errors.New("file is required")
+	}
+
+	// Check file size, maximum size is 5MB
+	if fileHeader.Size > 5*1024*1024 {
+		return nil, errors.New("file size should not exceed 5MB")
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	profileImageURL, err := utils.UploadFileToS3(file, fileHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	if profileImageURL == "" {
+		return nil, errors.New("failed to upload profile image")
+	}
+	userData, err := s.repo.UploadProfileImage(userUUID, profileImageURL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Profile image uploaded successfully", userData)
+	return mapper.UserToUserResponse(*userData), nil
 }
 
-// uploadBannerImage
-func (s *userService) UploadBannerImage(userID string, bannerImage string) (*dto.UserResponse, error) {
-	panic("unimplemented")
+func (s *userService) UploadBannerImage(userID string, fileHeader *multipart.FileHeader) (*dto.UserResponse, error) {
+	userUUID, err := utils.IsUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if fileHeader == nil {
+		return nil, errors.New("file is required")
+	}
+
+	// Check file size, maximum size is 5MB
+	if fileHeader.Size > 5*1024*1024 {
+		return nil, errors.New("file size should not exceed 5MB")
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	bannerImageURL, err := utils.UploadFileToS3(file, fileHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	if bannerImageURL == "" {
+		return nil, errors.New("failed to upload banner image")
+	}
+	userData, err := s.repo.UploadBannerImage(userUUID, bannerImageURL)
+
+	if err != nil {
+		return nil, err
+	}
+	return mapper.UserToUserResponse(*userData), nil
 }
