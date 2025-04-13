@@ -59,7 +59,7 @@ func (u *userController) RegisterUser(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println("Error creating user:", err)
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to register user", utils.ErrInternalServer)
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to create user: %v", err), utils.ErrInternalServer)
 		return
 	}
 	utils.SuccessResponse(c, http.StatusOK, "User registered successfully", user)
@@ -90,7 +90,7 @@ func (u *userController) VerifyEmail(c *gin.Context) {
 func (u *userController) RegenerateAuthOtp(c *gin.Context) {
 	userID := c.Param("userID")
 	if userID == "" {
-		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to get user ID from path:"), utils.ErrInternalServer)
+		utils.ErrorResponse(c, http.StatusInternalServerError, "failed to get user ID from path:", utils.ErrInternalServer)
 		return
 	}
 	message, err := u.userService.RegenerateAuthOtp(userID)
@@ -200,10 +200,19 @@ func (u *userController) LogoutUser(c *gin.Context) {
 }
 
 func (u *userController) DeleteUserProfile(c *gin.Context) {
-	panic("unimplemented")
+	userID, err := utils.GetUserIdFromHeader(c)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusUnauthorized, fmt.Sprintf("failed to get user ID from header: %v", err), utils.ErrUnauthorized)
+		return
+	}
+	message, err := u.userService.DeleteUserProfile(userID)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("failed to delete user profile: %v", err), utils.ErrInternalServer)
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, message, nil)
 }
 
-// UpdateUserProfile implements UserController.
 func (u *userController) UpdateUserProfile(c *gin.Context) {
 	userID, err := utils.GetUserIdFromHeader(c)
 	if err != nil {
@@ -225,12 +234,44 @@ func (u *userController) UpdateUserProfile(c *gin.Context) {
 
 }
 
-// UploadBannerImage implements UserController.
 func (u *userController) UploadBannerImage(c *gin.Context) {
-	panic("unimplemented")
+	userID, err := utils.GetUserIdFromHeader(c)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusUnauthorized, fmt.Sprintf("failed to get user ID from header: %v", err), utils.ErrUnauthorized)
+		return
+	}
+	file, err := c.FormFile("bannerImage")
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("failed to get form file: %v", err), utils.ErrBadRequest)
+		return
+	}
+
+	userUpdatedData, err := u.userService.UploadBannerImage(userID, file)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("failed to upload banner image: %v", err), utils.ErrInternalServer)
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, "Banner image uploaded successfully", userUpdatedData)
+
 }
 
-// UploadProfileImage implements UserController.
 func (u *userController) UploadProfileImage(c *gin.Context) {
-	panic("unimplemented")
+	userID, err := utils.GetUserIdFromHeader(c)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusUnauthorized, fmt.Sprintf("failed to get user ID from header: %v", err), utils.ErrUnauthorized)
+		return
+	}
+	file, err := c.FormFile("profileImage")
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("failed to get form file: %v", err), utils.ErrBadRequest)
+		return
+	}
+
+	userUpdatedData, err := u.userService.UploadProfileImage(userID, file)
+	if err != nil {
+		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("failed to upload profile image: %v", err), utils.ErrInternalServer)
+		return
+	}
+	utils.SuccessResponse(c, http.StatusOK, "Profile image uploaded successfully", userUpdatedData)
+
 }
