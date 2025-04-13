@@ -34,13 +34,13 @@ const LoginPage: React.FC = () => {
       />
       <div className="flex justify-evenly gap-4 mt-4">
         <Button
-          customClass="w-30"
+          customClass="flex-1"
           onClick={() => login(credentials)}
         >
           Login
         </Button>
         <Button
-          customClass="w-30"
+          customClass="flex-1"
           onClick={() => router.push(ROUTER.Register)}
           isPrimary={false}
         >

@@ -8,26 +8,40 @@ import withAuth from "@/components/hoc/withAuth";
 import { isUser, User } from "@/types/user.type";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { api_getme } from "@/api/auth";
+import { api_user_profile } from "@/api/auth";
 
 const ProfilePage: React.FC = () => {
   const getProfile = async () => {
-    const me = (await api_getme()).data;
+    const me = (await api_user_profile()).data.data;
     if (!isUser(me))
-      return { name: "", email: "", role: "user" }
+      return {
+        userID: "",
+        fullName: "",
+        gender: "",
+        username: "",
+        name: "",
+        email: "",
+        role: "user",
+        profileImage: "",
+        bannerImage: "",
+        createdAt: Date.now().toString(),
+        updatedAt: Date.now().toString()
+      } as User;
     else
       return me as User;
   };
 
   const userSchema = yup.object().shape({
-    name: yup.string().required("Full name is required"),
+    fullName: yup.string().required("Full name is required"),
     email: yup.string().required("Email is required"),
-    role: yup.string()
+    gender: yup.string().required("Gender is required"),
+    username: yup.string().required("Username is required"),
   });
 
   const { control, handleSubmit } = useForm<User>({
     resolver: yupResolver(userSchema), defaultValues: async () => getProfile()
   });
+
   const onSubmit = (user: User) => {
     console.log(user);
   }
@@ -45,9 +59,14 @@ const ProfilePage: React.FC = () => {
       </div>
       <Section label="User Information">
         <FormInputText
-          label="Name"
+          label="Full Name"
           control={control}
-          name="name"
+          name="fullName"
+        />
+        <FormInputText
+          label="Username"
+          control={control}
+          name="username"
         />
         <FormInputText
           label="Email"
