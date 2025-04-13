@@ -35,6 +35,7 @@ type UserResponse struct {
 }
 
 type UserLoginResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	AccessToken  string        `json:"accessToken"`
+	RefreshToken string        `json:"refreshToken"`
+	Data         *UserResponse `json:"data"`
 }

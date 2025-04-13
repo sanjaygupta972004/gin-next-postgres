@@ -13,11 +13,13 @@ type UserRepository interface {
 	UploadProfileImage(userID uuid.UUID, profileImage string) (*models.User, error)
 	UploadBannerImage(userID uuid.UUID, bannerImage string) (*models.User, error)
 	CreateUser(user *models.User) (*models.User, *gorm.DB, error)
-	VerifyAuthOtp(userID uuid.UUID, authOtp int) (*models.User, error)
+	VerifyAuthOtp(userID uuid.UUID) (*models.User, *gorm.DB, error)
+	RegenerateAuthOtp(userID uuid.UUID) (*models.User, *gorm.DB, error)
+	RegenerateAuthTokens(userID uuid.UUID) (*models.User, *gorm.DB, error)
 	LoginUser(loginReq dto.UserLoginRequest) (*models.User, *gorm.DB, error)
 	LogoutUser(userID uuid.UUID) error
 	GetUserByID(userID uuid.UUID) (*models.User, error)
-	UpdateUser(userID uuid.UUID, user *models.User) (*models.User, error)
+	UpdateUser(userID uuid.UUID, updateReq dto.UserUpdateRequest) (*models.User, error)
 	DeleteUser(userID uuid.UUID) error
 }
 
@@ -49,29 +51,42 @@ func (u *userRepository) CreateUser(user *models.User) (*models.User, *gorm.DB, 
 	return nil, nil, fmt.Errorf("user with email already exists")
 }
 
-func (u *userRepository) VerifyAuthOtp(userID uuid.UUID, authOtp int) (*models.User, error) {
+func (u *userRepository) VerifyAuthOtp(userID uuid.UUID) (*models.User, *gorm.DB, error) {
 	var user models.User
 	if err := u.db.Model(&user).Where("user_id = ?", userID).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("user not found")
+			return nil, nil, fmt.Errorf("user not found")
 		}
-		return nil, err
+		return nil, nil, err
 	}
-	if user.AuthOtp != authOtp {
-		return nil, fmt.Errorf("invalid OTP")
+	return &user, u.db, nil
+}
+
+func (u *userRepository) RegenerateAuthOtp(userID uuid.UUID) (*models.User, *gorm.DB, error) {
+	var user models.User
+	if err := u.db.Where("user_id = ?", userID).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil, fmt.Errorf("user not found")
+		}
+		return nil, nil, err
 	}
-	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(map[string]interface{}{
-		"auth_otp":          nil,
-		"is_email_verified": true,
-	}).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
+	return &user, u.db, nil
 }
 
 func (u *userRepository) LoginUser(loginReq dto.UserLoginRequest) (*models.User, *gorm.DB, error) {
 	var user models.User
 	if err := u.db.Where("email = ?", loginReq.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil, fmt.Errorf("user not found")
+		}
+		return nil, nil, err
+	}
+	return &user, u.db, nil
+}
+
+func (u *userRepository) RegenerateAuthTokens(userID uuid.UUID) (*models.User, *gorm.DB, error) {
+	var user models.User
+	if err := u.db.Where("user_id = ?", userID).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil, fmt.Errorf("user not found")
 		}
@@ -91,11 +106,11 @@ func (u *userRepository) GetUserByID(userID uuid.UUID) (*models.User, error) {
 	return &user, nil
 }
 
-// LogoutUser implements UserRepository.
 func (u *userRepository) LogoutUser(userID uuid.UUID) error {
 	var user models.User
 	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(map[string]interface{}{
-		"refresh_token": nil,
+		"refresh_token":             nil,
+		"refresh_token_expiry_time": nil,
 	}).Error; err != nil {
 		return err
 	}
@@ -110,19 +125,53 @@ func (u *userRepository) DeleteUser(userID uuid.UUID) error {
 	return nil
 }
 
-func (u *userRepository) UpdateUser(userID uuid.UUID, user *models.User) (*models.User, error) {
-	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(&user).Error; err != nil {
+func (u *userRepository) UpdateUser(userID uuid.UUID, updateReq dto.UserUpdateRequest) (*models.User, error) {
+	var user models.User
+	if err := u.db.Model(&user).Where("user_id = ?", userID).Updates(map[string]any{
+		"full_name": updateReq.FullName,
+		"username":  updateReq.Username,
+		"gender":    updateReq.Gender,
+	}).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+	if err := u.db.First(&user, "user_id = ?", userID).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
-// UploadBannerImage implements UserRepository.
 func (u *userRepository) UploadBannerImage(userID uuid.UUID, bannerImage string) (*models.User, error) {
-	panic("unimplemented")
-}
+	var user models.User
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.User{}).Where("user_id = ?", userID).Update("banner_image", bannerImage).Error; err != nil {
+			return err
+		}
+		if err := tx.First(&user, "user_id = ?", userID).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 
-// UploadProfileImage implements UserRepository.
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 func (u *userRepository) UploadProfileImage(userID uuid.UUID, profileImage string) (*models.User, error) {
-	panic("unimplemented")
+	var user models.User
+
+	err := u.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.User{}).Where("user_id = ?", userID).Update("profile_image", profileImage).Error; err != nil {
+			return err
+		}
+		if err := tx.First(&user, "user_id = ?", userID).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
