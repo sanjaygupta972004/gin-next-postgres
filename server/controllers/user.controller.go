@@ -163,6 +163,11 @@ func (u *userController) LoginUser(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusUnauthorized, fmt.Sprintf("failed to login user: %v", err), utils.ErrUnauthorized)
 		return
 	}
+
+	if !user.Data.IsEmailVerified {
+		utils.SuccessResponse(c, http.StatusOK, "User Email is not verified", user)
+		return
+	}
 	c.SetCookie("accessToken", user.AccessToken, 3600*12, "/", "", false, true)
 	c.SetCookie("refreshToken", user.RefreshToken, 3600*24*7, "/", "", false, true)
 	utils.SuccessResponse(c, http.StatusOK, "User logged in successfully", user)
