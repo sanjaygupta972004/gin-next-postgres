@@ -2,7 +2,7 @@
 import { ToastContainer } from "react-toastify";
 import Header from "./header";
 import { useAuth } from "@/context/AuthContext";
-import { InfinitySpin } from "react-loader-spinner";
+import { Hourglass } from "react-loader-spinner";
 
 export default function Layout({
   children,
@@ -17,7 +17,7 @@ export default function Layout({
         <div className="mt-[65px] flex-1 flex flex-col max-w-[1440px] w-full m-auto p-8">
           {isLoading ?
             <div className="flex justify-center items-center m-auto">
-              <InfinitySpin color="#FFF" />
+              <Hourglass colors={["#FFF", "#999"]} />
             </div>
             : children
           }

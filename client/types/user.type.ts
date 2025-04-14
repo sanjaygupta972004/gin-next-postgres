@@ -1,11 +1,18 @@
 export type User = {
+    userID?: string;
+    fullName: string;
+    gender: string;
     email: string;
-    name: string;
     role?: string;
+    username: string;
+    profileImage?: string;
+    bannerImage?: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 // eslint-disable-next-line
 export function isUser(obj: any): obj is User {
-    return !!obj && !!obj.email && !!obj.name && !!obj.role
+    return !!obj && !!obj.email && !!obj.fullName && !!obj.role
 }
 

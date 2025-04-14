@@ -44,7 +44,7 @@ export default function Header() {
             <div className="border border-solid border-white rounded-full p-1">
               <FaUserTie size={18} />
             </div>
-            {user.name}
+            {user.fullName}
           </div>
           {isShowUserDropdown &&
             <div
@@ -64,12 +64,12 @@ export default function Header() {
               }
               <a
                 href={ROUTER.Profile}
-                className="flex items-center gap-2 px-4 py-2 font-semibold cursor-pointer rounded-lg hover:bg-zinc-800 text-nowrap"
+                className="w-40 flex items-center gap-2 px-4 py-2 font-semibold cursor-pointer rounded-lg hover:bg-zinc-800 text-nowrap"
               >
                 <FaUserCircle size={18} />Profile
               </a>
               <div
-                className="flex items-center gap-2 px-4 py-2 font-semibold cursor-pointer rounded-lg hover:bg-zinc-800 text-nowrap"
+                className="w-40 flex items-center gap-2 px-4 py-2 font-semibold cursor-pointer rounded-lg hover:bg-zinc-800 text-nowrap"
                 onClick={() => { logout(); setIsShowUserDropdown(false) }}
               >
                 <FaSignOutAlt size={18} />Logout

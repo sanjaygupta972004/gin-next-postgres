@@ -5,9 +5,20 @@ export interface AuthCredentials {
   password: string;
 }
 
+export type AuthRegistrationFormRequest = {
+  fullName: string;
+  username: string;
+  email: string;
+  gender: string;
+  password: string;
+  role: string;
+  confirmPassword: string;
+}
+
 export interface AuthContextType {
   isLoading: boolean;
   user: User | null,
-  login: (credentials: AuthCredentials) => void;
+  login: (credentials: AuthCredentials) => Promise<void>;
+  register: (request: AuthRegistrationFormRequest) => Promise<User | null>;
   logout: () => void;
 }

@@ -3,15 +3,16 @@ import { useRouter } from 'next/navigation';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { isUser, User } from '@/types/user.type';
-import { AuthContextType, AuthCredentials } from '@/types/auth.type';
+import { AuthContextType, AuthCredentials, AuthRegistrationFormRequest } from '@/types/auth.type';
 import { ROUTER } from '@/constants/common';
 import { CookiesStorage } from '@/lib/storage/cookie';
-import { api_getme, api_login, api_refresh_token } from '@/api/auth';
+import { api_user_profile, api_user_login, api_refresh_token, api_user_register } from '@/api/auth';
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   user: null,
-  login: () => { },
+  login: async () => { },
+  register: async () => { return null },
   logout: () => { },
 });
 
@@ -25,10 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setIsLoading(true);
         if (CookiesStorage.getAccessToken() !== null) {
-          const refreshToken = (await api_refresh_token()).data;
-          CookiesStorage.setAccessToken(refreshToken.token);
-
-          const me = (await api_getme()).data;
+          const me = (await api_user_profile()).data.data;
           CookiesStorage.setUser(me);
           setUser(me);
         }
@@ -46,21 +44,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: AuthCredentials) => {
     try {
-      const res = (await api_login(credentials.email, credentials.password)).data;
-      const token = res.token || null;
-      CookiesStorage.setAccessToken(token);
+      const res = (await api_user_login(credentials.email, credentials.password)).data.data;
 
-      const me = (await api_getme()).data;
+      const accessToken = res.accessToken;
+      CookiesStorage.setAccessToken(accessToken);
+
+      const me = res.data as User;
       if (!isUser(me))
         setUser(null);
       else
         setUser(me as User);
+      setUser(me);
       CookiesStorage.setUser(me as User);
       router.push(ROUTER.Home)
     } catch (err) {
       // eslint-disable-next-line
       toast.error((err as any)?.message || "Invalid credentials");
       console.error("Failed to login", err);
+    }
+  }
+
+  const register = async (request: AuthRegistrationFormRequest) => {
+    try {
+      const user = (await api_user_register(request)).data.data as User;
+      toast.success("Successfully registered!");
+      return user;
+    } catch (err) {
+      // eslint-disable-next-line
+      toast.error((err as any)?.message || "Invalid credentials");
+      console.error("Failed to register", err);
+      return null;
     }
   }
 
@@ -76,7 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       user,
       login,
-      logout
+      logout,
+      register
     }}>
       {children}
     </AuthContext.Provider>

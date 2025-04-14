@@ -29,7 +29,7 @@ function UsersPage() {
             key={user.email}
           >
             <p>{index + 1}.</p>
-            <p>{user.name}</p>
+            <p>{user.fullName}</p>
             <p>{user.email}</p>
             {user.role === 'admin'
               ? <div className="flex items-center bg-sky-600 px-2 py-1 rounded-lg text-white">Admin</div>
