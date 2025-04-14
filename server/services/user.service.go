@@ -218,7 +218,11 @@ func (s *userService) LoginUser(userLoginReq *dto.UserLoginRequest) (*dto.UserLo
 		return nil, err
 	}
 	if !userData.IsEmailVerified {
-		return nil, errors.New("email not verified")
+		return &dto.UserLoginResponse{
+			AccessToken:  "",
+			RefreshToken: "",
+			Data:         mapper.UserToUserResponse(*userData),
+		}, nil
 	}
 
 	if err := utils.CompareHashAndPassword(userData.PassWord, userLoginReq.Password); err != nil {

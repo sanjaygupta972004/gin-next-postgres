@@ -21,17 +21,18 @@ type UserRegisterRequest struct {
 }
 
 type UserResponse struct {
-	UserID       string `json:"userID"`
-	FullName     string `json:"fullName"`
-	Gender       string `json:"gender"`
-	Email        string `json:"email"`
-	Role         string `json:"role"`
-	Username     string `json:"username"`
-	ProfileImage string `json:"profileImage"`
-	BannerImage  string `json:"bannerImage"`
-	CreatedAt    string `json:"createdAt"`
-	UpdatedAt    string `json:"updatedAt"`
-	DeletedAt    string `json:"deletedAt,omitempty"`
+	UserID          string `json:"userID"`
+	FullName        string `json:"fullName"`
+	Gender          string `json:"gender"`
+	Email           string `json:"email"`
+	Role            string `json:"role"`
+	Username        string `json:"username"`
+	IsEmailVerified bool   `json:"isEmailVerified"`
+	ProfileImage    string `json:"profileImage"`
+	BannerImage     string `json:"bannerImage"`
+	CreatedAt       string `json:"createdAt"`
+	UpdatedAt       string `json:"updatedAt"`
+	DeletedAt       string `json:"deletedAt,omitempty"`
 }
 
 type UserLoginResponse struct {
