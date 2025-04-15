@@ -14,7 +14,7 @@ export const CookiesStorage = {
     localStorage.removeItem(key);
   },
 
-  // Token
+  // Access Token
   getAccessToken() {
     return localStorage.getItem(CookieKey.accessToken)
   },
@@ -25,6 +25,19 @@ export const CookiesStorage = {
 
   clearAccessToken() {
     localStorage.removeItem(CookieKey.accessToken)
+  },
+
+  // Refresh Token
+  getRefreshToken() {
+    return localStorage.getItem(CookieKey.refreshToken)
+  },
+
+  setRefreshToken(refreshToken: string) {
+    localStorage.setItem(CookieKey.refreshToken, refreshToken)
+  },
+
+  clearRefreshToken() {
+    localStorage.removeItem(CookieKey.refreshToken)
   },
 
   // User

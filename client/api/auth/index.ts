@@ -4,7 +4,7 @@ import {
     API_USER_OTP_RESEND,
     API_USER_EMAIL_VERIFICATION,
     API_USER_PROFILE,
-    API_UPDATE_PROFILE,
+    API_USER_UPDATE_PROFILE,
     API_REFRESH_TOKEN,
 } from "@/constants/endpoint";
 import api from "..";
@@ -32,7 +32,7 @@ export const api_user_profile = () => {
 }
 
 export const api_update_profile = (user: User) => {
-    return api.post(API_UPDATE_PROFILE, { ...user })
+    return api.post(API_USER_UPDATE_PROFILE, { ...user })
 }
 
 export const api_refresh_token = () => {
