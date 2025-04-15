@@ -38,6 +38,7 @@ const LoginPage: React.FC = () => {
     try {
       setIsResending(true);
       await api_user_resend_otp_code(userID?.toString() || '');
+      setOtpCode("");
       toast.success("Successfully resent!");
     } catch (err) {
       console.error(err);

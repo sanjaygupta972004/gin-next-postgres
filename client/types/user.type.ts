@@ -9,6 +9,7 @@ export type User = {
     bannerImage?: string;
     createdAt?: string;
     updatedAt?: string;
+    isEmailVerified?: boolean;
 }
 
 // eslint-disable-next-line

@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { SelectHTMLAttributes } from 'react';
 import cn from "classnames";
-import { FaAngleDown } from 'react-icons/fa';
 
 interface FormSelectBoxOption {
   value: string | number;

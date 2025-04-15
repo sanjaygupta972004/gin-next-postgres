@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
     role: yup.string().required('Role'),
   });
 
-  const { control, handleSubmit, formState: { errors } } = useForm<AuthRegistrationFormRequest & { confirmPassword: string }>({
+  const { control, handleSubmit } = useForm<AuthRegistrationFormRequest & { confirmPassword: string }>({
     resolver: yupResolver(userSchema),
     defaultValues: { role: "user", gender: "male" }
   });
