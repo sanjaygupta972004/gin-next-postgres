@@ -46,10 +46,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = (await api_user_login(credentials.email, credentials.password)).data.data;
 
+      const me = res.data as User;
+      if (!me.isEmailVerified) {
+        router.push(ROUTER.Verification(me.userID!))
+        return;
+      }
       const accessToken = res.accessToken;
       CookiesStorage.setAccessToken(accessToken);
 
-      const me = res.data as User;
       if (!isUser(me))
         setUser(null);
       else
