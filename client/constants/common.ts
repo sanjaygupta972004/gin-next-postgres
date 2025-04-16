@@ -1,6 +1,7 @@
 
 export const CookieKey = {
-  accessToken: 'jwt',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
   user: 'user',
 };
 
