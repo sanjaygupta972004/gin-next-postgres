@@ -7,11 +7,13 @@ import { isUser, User } from '@/types/user.type';
 import { AuthContextType, AuthCredentials, AuthRegistrationFormRequest } from '@/types/auth.type';
 import { ROUTER } from '@/constants/common';
 import { CookiesStorage } from '@/lib/storage/cookie';
-import { api_user_profile, api_user_login, api_refresh_token, api_user_register } from '@/api/auth';
+import { api_auth_login, api_auth_refresh_token, api_auth_register } from '@/api/auth';
+import { api_user_get_profile } from '@/api/user';
 
 const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   user: null,
+  setUser: () => { },
   login: async () => { },
   register: async () => { return null },
   logout: () => { },
@@ -30,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (accessToken !== null) {
           const { exp } = jwtDecode(accessToken);
           if ((exp || 10000000) * 1000 < Date.now()) await refreshAccessToken();
-          const me = (await api_user_profile()).data.data;
+          const me = (await api_user_get_profile()).data.data;
           CookiesStorage.setUser(me);
           setUser(me);
         }
@@ -47,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshAccessToken = async () => {
     try {
       CookiesStorage.setAccessToken(CookiesStorage.getRefreshToken()!);
-      const { data } = await api_refresh_token();
+      const { data } = await api_auth_refresh_token();
       const { accessToken: newAccessToken, refreshToken: newRefreshToken } = data.data;
 
       CookiesStorage.setAccessToken(newAccessToken);
@@ -60,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: AuthCredentials) => {
     try {
-      const res = (await api_user_login(credentials.email, credentials.password)).data.data;
+      const res = (await api_auth_login(credentials.email, credentials.password)).data.data;
 
       const me = res.data as User;
       if (!me.isEmailVerified) {
@@ -90,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (request: AuthRegistrationFormRequest) => {
     try {
-      const user = (await api_user_register(request)).data.data as User;
+      const user = (await api_auth_register(request)).data.data as User;
       toast.success("Successfully registered!");
       return user;
     } catch (err) {
@@ -113,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       isLoading,
       user,
+      setUser,
       login,
       logout,
       register

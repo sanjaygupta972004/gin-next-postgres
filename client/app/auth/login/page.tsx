@@ -9,14 +9,26 @@ import InputText from "@/components/common/InputBox";
 import Section from "@/components/common/Section";
 import { Button } from "@/components/common/Button";
 import { ROUTER } from "@/constants/common";
+import { ThreeDots } from "react-loader-spinner";
 
 
 const LoginPage: React.FC = () => {
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
   const [credentials, setCredentials] = useState<AuthCredentials>({ email: "", password: "" })
 
   const { login } = useAuth();
   const router = useRouter();
 
+  const onLogin = () => {
+    try {
+      setIsLoggingIn(true);
+      login(credentials);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }
   return (
     <Section className="w-[400px] m-auto">
       <InputText
@@ -34,9 +46,10 @@ const LoginPage: React.FC = () => {
       />
       <div className="flex justify-evenly gap-4 mt-4">
         <Button
-          customClass="flex-1"
-          onClick={() => login(credentials)}
+          customClass="flex-1 flex items-center justify-center gap-2"
+          onClick={onLogin}
         >
+          {isLoggingIn && <ThreeDots color="#000" width={16} height={16} />}
           Login
         </Button>
         <Button
