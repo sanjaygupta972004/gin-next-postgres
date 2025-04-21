@@ -7,7 +7,7 @@ import { FaPaperPlane } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import Section from "@/components/common/Section";
 import { Button } from "@/components/common/Button";
-import { api_user_email_verify, api_user_resend_otp_code } from "@/api/auth";
+import { api_auth_email_verify, api_auth_resend_otp_code } from "@/api/auth";
 import { ThreeDots } from "react-loader-spinner";
 import { ROUTER } from "@/constants/common";
 
@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = async () => {
     try {
       setIsSubmitting(true);
-      await api_user_email_verify(userID?.toString() || '', +otpCode);
+      await api_auth_email_verify(userID?.toString() || '', +otpCode);
       toast.success("Successfully verified!");
       router.push(ROUTER.Login);
     } catch (err) {
@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
   const OnResend = async () => {
     try {
       setIsResending(true);
-      await api_user_resend_otp_code(userID?.toString() || '');
+      await api_auth_resend_otp_code(userID?.toString() || '');
       setOtpCode("");
       toast.success("Successfully resent!");
     } catch (err) {

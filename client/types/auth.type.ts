@@ -18,6 +18,7 @@ export type AuthRegistrationFormRequest = {
 export interface AuthContextType {
   isLoading: boolean;
   user: User | null,
+  setUser: (user: User) => void;
   login: (credentials: AuthCredentials) => Promise<void>;
   register: (request: AuthRegistrationFormRequest) => Promise<User | null>;
   logout: () => void;

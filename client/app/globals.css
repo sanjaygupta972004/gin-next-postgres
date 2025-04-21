@@ -13,12 +13,12 @@ html, body {
 
 /* Customize scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-900;
+  @apply bg-transparent;
   border-radius: 50px;
 }
 

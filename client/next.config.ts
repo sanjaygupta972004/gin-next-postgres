@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'user-gin-next.s3.us-east-1.amazonaws.com'
       }
     ]
   }

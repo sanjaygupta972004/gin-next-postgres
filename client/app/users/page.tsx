@@ -1,7 +1,5 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { api_get_users } from "@/api/user";
 import withAdminAuth from "@/components/hoc/withAdminAuth";
 import { User } from "@/types/user.type";
 
@@ -10,8 +8,7 @@ function UsersPage() {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const _users = (await api_get_users()).data.users as User[];
-        setUsers(_users)
+        setUsers([]);
       } catch (err) {
         console.error(err);
         setUsers([]);
