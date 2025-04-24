@@ -9,7 +9,7 @@ import withAuth from "@/components/hoc/withAuth";
 import { isUser, User } from "@/types/user.type";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { api_user_get_profile, api_user_update_profile } from "@/api/user";
+import { api_user_get_profile, api_user_update_profile, api_user_upload_avatar, api_user_upload_banner } from "@/api/user";
 import { useAuth } from "@/context/AuthContext";
 import { ThreeDots } from "react-loader-spinner";
 
@@ -61,8 +61,14 @@ const ProfilePage: React.FC = () => {
       if (bannerImage) {
         const imageData = new FormData();
         imageData.append('bannerImage', bannerImage);
-        // const uploaded_url = await api_user_upload_banner(imageData);
-        // user.profileImage = uploaded_url;
+        const res = (await api_user_upload_banner(imageData)).data.data as User;
+        user.bannerImage = res.bannerImage;
+      }
+      if (avatarImage) {
+        const imageData = new FormData();
+        imageData.append('profileImage', avatarImage);
+        const res = (await api_user_upload_avatar(imageData)).data.data as User;
+        user.profileImage = res.profileImage;
       }
       const updated_profile = await api_user_update_profile(user);
       setUser(updated_profile.data.data as User);
