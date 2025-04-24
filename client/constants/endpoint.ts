@@ -9,3 +9,4 @@ export const API_AUTH_EMAIL_VERIFICATION = '/api/v1/user/verify-email';
 export const API_USER_GET_PROFILE = '/api/v1/user/get-profile';
 export const API_USER_UPDATE_PROFILE = '/api/v1/user/update-profile';
 export const API_USER_UPLOAD_BANNER = '/api/v1/user/upload-banner-image';
+export const API_USER_UPLOAD_AVATAR = '/api/v1/user/upload-profile-image';
