@@ -41,9 +41,18 @@ export default function Header() {
             className="flex items-center gap-2 font-semibold cursor-pointer text-[14px]"
             onClick={() => setIsShowUserDropdown(!isShowUserDropdown)}
           >
-            <div className="border border-solid border-white rounded-full p-1">
-              <FaUserTie size={18} />
-            </div>
+            {user.profileImage ?
+              <Image
+                src={user.profileImage}
+                alt="avatar"
+                width={32}
+                height={32}
+                className="rounded-full border-solid border-zinc-50"
+              />
+              : <div className="w-8 h-8 border border-solid border-zinc-500 rounded-full p-1">
+                <FaUserTie size={18} />
+              </div>
+            }
             {user.fullName}
           </div>
           {isShowUserDropdown &&
