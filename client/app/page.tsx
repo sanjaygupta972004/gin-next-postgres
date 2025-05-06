@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 const Home: React.FC = () => {
   return (
@@ -6,6 +7,7 @@ const Home: React.FC = () => {
       <h1 className="text-2xl font-semibold">
         Welcome to Gin + Next.js World
       </h1>
+      <Image src="/back.png" alt="logo" width={778} height={561} className="h-100 w-auto object-contain rounded-xl m-auto mt-16" />
       <p className="mt-16 text-lg">
         This project is designed for the Gin + Next.js community, providing a platform to share knowledge, collaborate, and build modern web applications.
       </p>
