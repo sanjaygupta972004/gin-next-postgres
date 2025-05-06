@@ -53,7 +53,7 @@ const Home: React.FC = () => {
         </p>
       </div>
 
-      <p className="mt-16 text-lg font-semibold">Happy coding with Gin and Next.js. Let's get started! 🚀</p>
+      <p className="mt-16 text-lg font-semibold">{`Happy coding with Gin and Next.js. Let's get started! 🚀`}</p>
     </div>
   );
 };
