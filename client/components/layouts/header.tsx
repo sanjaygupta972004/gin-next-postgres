@@ -31,7 +31,7 @@ export default function Header() {
   }, [isShowUserDropdown]);
 
   return (
-    <div className="z-10 fixed left-0 right-0 top-0 bg-zinc-950/10 backdrop-blur-sm border-b border-dashed border-b-zinc-800 py-2 px-8 flex justify-between items-center">
+    <div className="z-10 fixed left-0 right-0 top-0 bg-zinc-950/60 backdrop-blur-lg border-b border-dashed border-b-zinc-800 py-2 px-8 flex justify-between items-center">
       <Link href="/" >
         <Image src="/logo.png" alt="logo" width={71} height={48} className="py-1.5 h-12 w-auto object-contain" />
       </Link>
