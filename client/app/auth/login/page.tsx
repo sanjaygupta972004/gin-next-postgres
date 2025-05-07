@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaApple, FaAppStore, FaEnvelope, FaGithub, FaGoogle, FaKey, FaTwitter } from "react-icons/fa";
+import { FaApple, FaEnvelope, FaGithub, FaGoogle, FaKey, FaTwitter } from "react-icons/fa";
 import { AuthCredentials } from "@/types/auth.type";
 import { useAuth } from "@/context/AuthContext";
 import withAuth from "@/components/hoc/withAuth";
