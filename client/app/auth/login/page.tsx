@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaEnvelope, FaKey } from "react-icons/fa";
+import { FaApple, FaAppStore, FaEnvelope, FaGithub, FaGoogle, FaKey, FaTwitter } from "react-icons/fa";
 import { AuthCredentials } from "@/types/auth.type";
 import { useAuth } from "@/context/AuthContext";
 import withAuth from "@/components/hoc/withAuth";
@@ -31,6 +31,22 @@ const LoginPage: React.FC = () => {
   }
   return (
     <Section className="w-[400px] m-auto">
+      <p className="text-base text-center font-semibold">Login With</p>
+      <div className="flex flex-row justify-center gap-6">
+        <Button customClass="w-14 h-14 flex items-center justify-center" isPrimary={false}>
+          <FaGoogle size={24} />
+        </Button>
+        <Button customClass="w-14 h-14 flex items-center justify-center" isPrimary={false}>
+          <FaApple size={24} />
+        </Button>
+        <Button customClass="w-14 h-14 flex items-center justify-center" isPrimary={false}>
+          <FaGithub size={24} />
+        </Button>
+        <Button customClass="w-14 h-14 flex items-center justify-center" isPrimary={false}>
+          <FaTwitter size={24} />
+        </Button>
+      </div>
+      <div className="w-full h-[1px] bg-zinc-800 my-2" />
       <InputText
         label="Email"
         labelIcon={<FaEnvelope />}
