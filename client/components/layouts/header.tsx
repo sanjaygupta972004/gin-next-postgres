@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image"
 import { ROUTER } from "@/constants/common";
-import { FaBook, FaComments, FaSignInAlt, FaSignOutAlt, FaTrophy, FaUserCircle, FaUsers, FaUserTie } from "react-icons/fa";
+import { FaBook, FaComments, FaSignInAlt, FaSignOutAlt, FaTrophy, FaUserCircle, FaUserTie } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "../common/Button";
 
