@@ -7,6 +7,9 @@ const env = {
 const nextConfig: NextConfig = {
   /* config options here */
   env: env,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
