@@ -12,5 +12,7 @@ export const ROUTER = {
   Verification: (userID: string) => `/auth/verification/${userID}`,
   Profile: '/profile',
   Forbidden: '/auth/forbidden',
-  Users: '/users',
+  Tutorials: '/tutorials',
+  Discussion: '/discussion',
+  LeaderBoard: '/leaderboard',
 }
