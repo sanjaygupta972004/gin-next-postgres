@@ -49,7 +49,7 @@ export default function Header() {
           customClass="flex items-center justify-center gap-2 py-2.5"
           onClick={() => router.push(ROUTER.Discussion)}
         >
-          <FaComments /> Discussion
+          <FaComments /> Q&A
         </Button>
         <Button
           isPrimary={false}
