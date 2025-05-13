@@ -3,7 +3,7 @@ import Image from "next/image";
 
 const Home: React.FC = () => {
   return (
-    <div className="mt-8 text-center">
+    <div className="text-center">
       <h1 className="text-2xl font-semibold">
         Welcome to Gin + Next.js World
       </h1>

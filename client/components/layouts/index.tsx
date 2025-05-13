@@ -14,7 +14,7 @@ export default function Layout({
     <>
       <main className="relative w-screen min-h-screen flex flex-col">
         <Header />
-        <div className="mt-[65px] flex-1 flex flex-col max-w-[1440px] w-full m-auto p-8">
+        <div className="mt-[65px] flex-1 flex flex-col max-w-[1440px] w-full m-auto px-8 pt-16 pb-8">
           {isLoading ?
             <div className="flex justify-center items-center m-auto">
               <Hourglass colors={["#FFF", "#999"]} />
