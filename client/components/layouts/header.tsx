@@ -61,7 +61,7 @@ export default function Header() {
         {user ?
           <div className="relative">
             <div
-              className="flex items-center gap-2 font-semibold cursor-pointer text-[14px]"
+              className="h-full flex items-center gap-2 border border-zinc-800 rounded-lg px-3 py-1 font-semibold cursor-pointer text-[14px]"
               onClick={() => setIsShowUserDropdown(!isShowUserDropdown)}
             >
               {user.profileImage ?
